@@ -12,7 +12,6 @@ import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValu
 import de.dkfz.roddy.core.*
 import de.dkfz.roddy.execution.io.ExecutionResult
 import de.dkfz.roddy.execution.io.ExecutionService
-import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider
 import de.dkfz.roddy.execution.jobs.CommandFactory
 import de.dkfz.roddy.knowledge.files.BaseFile
@@ -37,8 +36,6 @@ import static de.dkfz.b080.co.files.COConstants.*
 public class COProjectsRuntimeService extends RuntimeService {
 
     private static LoggerWrapper logger = LoggerWrapper.getLogger(COProjectsRuntimeService.class.getName());
-
-    private static List<File> alreadySearchedMergedBamFolders = [];
 
     /**
      * Releases the cache in this provider
@@ -208,34 +205,14 @@ public class COProjectsRuntimeService extends RuntimeService {
         boolean extractSamplesFromOutputFiles = configurationValues.getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
         boolean enforceAtomicSampleName = configurationValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
 
-
-        FileSystemAccessProvider fileSystemAccessProvider = FileSystemAccessProvider.getInstance()
         if (extractSamplesFromFastqList) {
             List<String> fastqFiles = configurationValues.getString("fastq_list", "").split(StringConstants.SPLIT_SEMICOLON) as List<String>;
             def sequenceDirectory = configurationValues.get("sequenceDirectory").toFile(context).getAbsolutePath();
             int indexOfSampleID = sequenceDirectory.split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
-            samples += (List<Sample>)fastqFiles.collect {
-                it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
-            }.unique().collect {
-                if (Sample.getSampleType(context, it) != Sample.SampleType.UNKNOWN) {
-                    return new Sample(context, it)
-                } else {
-                    logger.warning("Unknown sample type '${it}'")
-                    return (List<Sample>) null
-                }
-            }.findAll {
-                it != null
-            };
+            samples += fastqFiles.collect { it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID] }.unique().collect { if (Sample.getSampleType(context, it) != Sample.SampleType.UNKNOWN) return new Sample(context, it) };
         } else if (extractSamplesFromOutputFiles) {
-            //TODO etractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
-
             File alignmentDirectory = getAlignmentDirectory(context)
-            if (!fileSystemAccessProvider.checkDirectory(alignmentDirectory, context, false)) {
-                logger.severe("Cannot retrieve samples from missing directory: " + alignmentDirectory.absolutePath);
-                return (List<Sample>) null;
-            }
-            List<File> filesInDirectory = fileSystemAccessProvider.listFilesInDirectory(alignmentDirectory).sort();
-
+            List<File> filesInDirectory = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory);
             List<Sample.SampleType> availableTypes = [];
             for (File f : filesInDirectory) {
                 try {
@@ -250,9 +227,9 @@ public class COProjectsRuntimeService extends RuntimeService {
                         throw new Exception();
                     if (!availableTypes.contains(type)) {
                         availableTypes << type;
-                    }
-                    if (!samples.find { sample -> sample.name == sampleName })
                         samples << new Sample(context, sampleName);
+                    }
+
                 } catch (Exception ex) {
                     logger.warning("The sample for file ${f.getAbsolutePath()} could not be determined.");
                 }
@@ -261,7 +238,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 logger.warning("There were no samples available for dataset ${context.getDataSet().getId()}, extractSamplesFromOutputFiles is set to true, should this value be false?")
             }
         } else {
-            List<File> sampleDirs = fileSystemAccessProvider.listDirectoriesInDirectory(context.getInputDirectory());
+            List<File> sampleDirs = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(context.getInputDirectory());
             for (File sd : sampleDirs) {
                 if (Sample.getSampleType(context, sd.getName()) == Sample.SampleType.UNKNOWN) {
                     logger.warning("Skipping directory ${sd.absolutePath}, name is not a known sample type.")
@@ -408,12 +385,7 @@ public class COProjectsRuntimeService extends RuntimeService {
         if (useMergedBamsFromInputDirectory)
             searchDirectory = getInpDirectory(COConstants.CVALUE_ALIGNMENT_INPUT_DIRECTORY_NAME, context, sample);
 
-        synchronized (alreadySearchedMergedBamFolders) {
-            if (!alreadySearchedMergedBamFolders.contains(searchDirectory)) {
-                logger.postAlwaysInfo("Looking for merged bam files in directory ${searchDirectory.getAbsolutePath()}");
-                alreadySearchedMergedBamFolders << searchDirectory;
-            }
-        }
+        logger.postAlwaysInfo("Looking for merged bam files in directory ${searchDirectory.getAbsolutePath()}");
 
         mergedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
 

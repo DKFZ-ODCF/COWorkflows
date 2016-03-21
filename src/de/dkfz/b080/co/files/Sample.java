@@ -1,7 +1,7 @@
 package de.dkfz.b080.co.files;
 
 import de.dkfz.b080.co.common.BasicCOProjectsRuntimeService;
-import de.dkfz.roddy.config.Configuration;
+import de.dkfz.b080.co.common.COConfig;
 import de.dkfz.roddy.core.Analysis;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.core.Project;
@@ -70,10 +70,12 @@ public class Sample implements Comparable<Sample>, Serializable {
     }
 
     public static SampleType getSampleType(ExecutionContext context, String sampleName) {
-        Configuration cfg = context.getConfiguration();
-        List<String> possibleControlSampleNamePrefixes = cfg.getConfigurationValues().get("possibleControlSampleNamePrefixes").toStringList(" ", new String[]{"(", ")"});
-        List<String> possibleTumorSampleNamePrefixes = cfg.getConfigurationValues().get("possibleTumorSampleNamePrefixes").toStringList(" ", new String[]{"(", ")"});
-        SampleType tempSampleType = isInSampleList(possibleControlSampleNamePrefixes, sampleName) ? SampleType.CONTROL : (isInSampleList(possibleTumorSampleNamePrefixes, sampleName) ? SampleType.TUMOR : SampleType.UNKNOWN);
+        COConfig cfg = new COConfig(context);
+        SampleType tempSampleType = isInSampleList(cfg.getPossibleControlSampleNamePrefixes(), sampleName) ?
+                    SampleType.CONTROL :
+                    (isInSampleList(cfg.getPossibleTumorSampleNamePrefixes(), sampleName) ?
+                                SampleType.TUMOR :
+                                SampleType.UNKNOWN);
         return tempSampleType;
     }
 
@@ -98,6 +100,8 @@ public class Sample implements Comparable<Sample>, Serializable {
         return name;
     }
 
+    public SampleType getSampleType() { return sampleType; }
+
     public File getPath() {
         return path;
     }
@@ -112,7 +116,13 @@ public class Sample implements Comparable<Sample>, Serializable {
 
     public List<String> getLibraries() {
         if(libraries == null) {
-            libraries = ((BasicCOProjectsRuntimeService)executionContext.getRuntimeService()).getLibrariesForSample(this);
+            COConfig cfg = new COConfig(executionContext);
+            BasicCOProjectsRuntimeService runtimeService = (BasicCOProjectsRuntimeService) executionContext.getRuntimeService();
+            if (cfg.getExtractSamplesFromInputTable()) {
+                libraries = runtimeService.extractLibrariesFromInputTable(executionContext, name);
+            } else {
+                libraries = runtimeService.extractLibrariesFromSampleDirectory(path);
+            }
         }
         return libraries;
     }

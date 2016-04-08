@@ -19,10 +19,8 @@ class InputTable {
     private Map<String,Integer> headerMap
     private List<Map<String,String>> records
 
-    public InputTable(Map<String,Integer> newHeaderMap, List<Map<String,String>> newTable = new LinkedList<Map<String,String>>()) {
-        records = newTable.collect { Map<String,String> record ->
-            record.clone()
-        } as List<Map<String,String>>;
+    public InputTable(Map<String,Integer> newHeaderMap, List<Map<String,String>> newTable) {
+        records = newTable.collect { Map<String,String> record -> record.clone() } as List<Map<String,String>>;
         headerMap = newHeaderMap
     }
 

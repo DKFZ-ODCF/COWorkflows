@@ -165,9 +165,8 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         return resultTable.listLibraries()
     }
 
-    public List<Sample> extractSamplesFromFastqList (ExecutionContext context) {
+    public List<Sample> extractSamplesFromFastqList (List<File> fastqFiles, ExecutionContext context) {
         COConfig cfg = new COConfig(context);
-        List<String> fastqFiles = cfg.getFastqList()
         int indexOfSampleID = cfg.getSequenceDirectory().split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
         return fastqFiles.collect {
             it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
@@ -274,7 +273,8 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
             samples = extractSamplesFromInputTable(context)
             extractedFrom = "input table '${cfg.inputTableFile}'"
         } else if (cfg.extractSamplesFromFastqFileList) {
-            samples = extractSamplesFromFastqList(context)
+            List<File> fastqFiles = cfg.getFastqList().collect { String f -> new File(f); }
+            samples = extractSamplesFromFastqList(fastqFiles, context)
             extractedFrom = "fastq_list configuration value"
         } else if (cfg.extractSamplesFromOutputFiles) {
             samples = extractSamplesFromOutputFiles(context)

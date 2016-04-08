@@ -20,6 +20,5 @@
     <orderEntry type="library" name="roddyBundledLibraries" level="application" />
     <orderEntry type="library" name="PluginBase" level="application" />
     <orderEntry type="library" name="roddy" level="application" />
-    <orderEntry type="library" name="groovy-2.4.5" level="application" />
   </component>
 </module>

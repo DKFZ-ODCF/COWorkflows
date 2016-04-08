@@ -169,7 +169,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         COConfig cfg = new COConfig(context);
         int indexOfSampleID = cfg.getSequenceDirectory().split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
         return fastqFiles.collect {
-            it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
+            it.name.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
         }.unique().collect {
             new Sample(context, it)
         }

@@ -7,13 +7,12 @@ package de.dkfz.b080.co.common
 import de.dkfz.b080.co.files.*
 import de.dkfz.roddy.StringConstants
 import de.dkfz.roddy.config.Configuration
-import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues
 import de.dkfz.roddy.core.*
 import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.execution.jobs.CommandFactory
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
-import static de.dkfz.b080.co.files.COConstants.*
+
 //import net.xeoh.plugins.base.annotations.PluginImplementation
 
 /**
@@ -168,7 +167,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
 
     public List<Sample> extractSamplesFromFastqList (ExecutionContext context) {
         COConfig cfg = new COConfig(context);
-        List<String> fastqFiles = cfg.getFastqFiles()
+        List<String> fastqFiles = cfg.getFastqList()
         int indexOfSampleID = cfg.getSequenceDirectory().split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
         return fastqFiles.collect {
             it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
@@ -235,8 +234,6 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
 
     public static List<Sample> extractSamplesFromFilenames(List<File> filesInDirectory, ExecutionContext context) {
         COConfig cfg = new COConfig(context)
-        //def configurationValues = context.getConfiguration().getConfigurationValues()
-        //boolean enforceAtomicSampleName = configurationValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
         LinkedList<Sample> samples = [];
         List<Sample.SampleType> availableTypes = [];
         for (File f : filesInDirectory) {
@@ -276,14 +273,14 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         if (cfg.extractSamplesFromInputTable) {
             samples = extractSamplesFromInputTable(context)
             extractedFrom = "input table '${cfg.inputTableFile}'"
-        } else if (cfg.extractSamplesFromFastqList) {
+        } else if (cfg.extractSamplesFromFastqFileList) {
             samples = extractSamplesFromFastqList(context)
             extractedFrom = "fastq_list configuration value"
         } else if (cfg.extractSamplesFromOutputFiles) {
             samples = extractSamplesFromOutputFiles(context)
             extractedFrom = "output files"
-        } else if (cfg.extractSamplesFromBamfileList) {
-            List<File> bamFiles = cfg.getBamFileList() //configurationValues.getString("bamfile_list", "").split(StringConstants.SPLIT_SEMICOLON).collect { String f -> new File(f); };
+        } else if (cfg.extractSamplesFromBamList) {
+            List<File> bamFiles = cfg.getBamList().collect { String f -> new File(f); }
             samples = extractSamplesFromFilenames(bamFiles, context)
             // @Michael: Should that not better be called "bam_list" in analogy to "fastq_list"?
             extractedFrom = "bamfile_list configuration value "

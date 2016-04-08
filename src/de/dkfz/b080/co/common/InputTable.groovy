@@ -19,8 +19,10 @@ class InputTable {
     private Map<String,Integer> headerMap
     private List<Map<String,String>> records
 
-    public InputTable(Map<String,Integer> newHeaderMap, List<Map<String,String>> newTable) {
-        records = newTable.collect { Map<String,String> record -> record.clone() } as List<Map<String,String>>;
+    public InputTable(Map<String,Integer> newHeaderMap, List<Map<String,String>> newTable = new LinkedList<Map<String,String>>()) {
+        records = newTable.collect { Map<String,String> record ->
+            record.clone()
+        } as List<Map<String,String>>;
         headerMap = newHeaderMap
     }
 
@@ -39,7 +41,7 @@ class InputTable {
             default:
                 throw new IllegalArgumentException("Value '${format}' is not a valid for ${CVALUE_INPUT_TABLE_FORMAT}. Use 'tsv', 'csv' or 'excel' (case-insensitive)!")
         }
-        tableFormat.withHeader().withCommentMarker('#' as char).withIgnoreEmptyLines()
+        tableFormat = tableFormat.withCommentMarker('#' as char).withIgnoreEmptyLines().withHeader()
         CSVParser parser = tableFormat.parse(reader)
         return new InputTable(parser.headerMap as Map<String,Integer>, parser.records.collect { it.toMap() })
 

@@ -23,8 +23,8 @@ class COConfig {
         configValues.put(flagName, value, typeName)
     }
 
-    public boolean getExtractSamplesFromFastqList() {
-        return configValues.getString("fastq_list", "") as boolean //Evaluates to false automatically.
+    public boolean getExtractSamplesFromFastqFileList() {
+        return !getFastqList().isEmpty()
     }
 
     public boolean getExtractSamplesFromInputTable() {
@@ -47,8 +47,16 @@ class COConfig {
         return configValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false)
     }
 
-    public List<String> getFastqFiles() {
+    public boolean getExtractSamplesFromBamList() {
+        return !getBamList().isEmpty()
+    }
+
+    public List<String> getFastqList() {
         return configValues.getString("fastq_list", "").split(StringConstants.SPLIT_SEMICOLON) as List<String>
+    }
+
+    public List<String> getBamList() {
+        return configValues.getString("bamfile_list", "").split(StringConstants.SPLIT_SEMICOLON) as List<String>
     }
 
     public String getSequenceDirectory() {
@@ -78,6 +86,5 @@ class COConfig {
     public List<String> getPossibleTumorSampleNamePrefixes() {
         return configValues.get("possibleTumorSampleNamePrefixes").toStringList(" ", ["(", ")"] as String[])
     }
-
 
 }

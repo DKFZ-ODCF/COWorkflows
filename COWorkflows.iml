@@ -17,9 +17,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="roddyBundledLibraries" level="project" />
-    <orderEntry type="library" name="PluginBase" level="project" />
-    <orderEntry type="library" name="roddy" level="project" />
+    <orderEntry type="library" name="roddyBundledLibraries" level="application" />
+    <orderEntry type="library" name="PluginBase" level="application" />
+    <orderEntry type="library" name="roddy" level="application" />
     <orderEntry type="library" name="groovy-2.4.5" level="application" />
   </component>
 </module>

@@ -35,8 +35,7 @@ public class MetadataTableTest {
     private MetadataTable readTable(String table) {
         String testFileName = LibrariesFactory.getGroovyClassLoader().getResource(table).file
 
-        MetadataTable metadataTable = (MetadataTable) MetadataTableFactory.readTable(new File(testFileName), "tsv", columnIDMap, mandatoryColumns)
-        MetadataTable inputTable = new MetadataTable(metadataTable)
+        MetadataTable inputTable = new MetadataTable(MetadataTableFactory.readTable(new File(testFileName), "tsv", columnIDMap, mandatoryColumns))
         return inputTable;
     }
 

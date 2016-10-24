@@ -22,8 +22,5 @@ function getRefGenomeAndChrPrefixFromHeader {
             REFERENCE_GENOME=${referenceGenome_1KGRef}
             CHROM_SIZES_FILE=${chromosomeSizesFile_hs37}
         fi
-    else
-        [[ ${REFERENCE_GENOME-} == "" || ! -f ${REFERENCE_GENOME} ]] && echo "The reference genome is not set! Aborting!" && exit 250
-        [[ ${CHROM_SIZES_FILE-} == "" || ! -f ${CHROM_SIZES_FILE} ]] && echo "The chromosome sizes file is not set! Aborting!" && exit 251
     fi
 }

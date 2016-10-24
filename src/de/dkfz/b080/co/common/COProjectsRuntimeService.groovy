@@ -8,16 +8,13 @@ import de.dkfz.b080.co.files.*
 import de.dkfz.roddy.Roddy
 import de.dkfz.roddy.StringConstants
 import de.dkfz.roddy.config.Configuration
-import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues
 import de.dkfz.roddy.core.*
 import de.dkfz.roddy.execution.io.ExecutionResult
 import de.dkfz.roddy.execution.io.ExecutionService
-import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider
 import de.dkfz.roddy.execution.jobs.CommandFactory
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
-import org.omg.CORBA.UNKNOWN
 
 import java.util.function.Consumer
 import java.util.logging.Logger
@@ -37,8 +34,6 @@ import static de.dkfz.b080.co.files.COConstants.*
 public class COProjectsRuntimeService extends RuntimeService {
 
     private static LoggerWrapper logger = LoggerWrapper.getLogger(COProjectsRuntimeService.class.getName());
-
-    private static List<File> alreadySearchedMergedBamFolders = [];
 
     /**
      * Releases the cache in this provider
@@ -109,7 +104,7 @@ public class COProjectsRuntimeService extends RuntimeService {
             return true;
 
         //Temporary files are also considered as valid.
-        if (baseFile.isTemporaryFile())
+        if(baseFile.isTemporaryFile())
             return true;
 
         try {
@@ -200,42 +195,14 @@ public class COProjectsRuntimeService extends RuntimeService {
     }
 
 
-    public List<Sample> getSamplesForRun(ExecutionContext context) {
+    public List<Sample> getSamplesForRun(ExecutionContext run) {
         List<Sample> samples = new LinkedList<Sample>();
+        boolean extractSamplesFromOutputFiles = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
+        boolean enforceAtomicSampleName = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
 
-        def configurationValues = context.getConfiguration().getConfigurationValues()
-        boolean extractSamplesFromFastqList = configurationValues.getString("fastq_list", ""); //Evaluates to false automatically.
-        boolean extractSamplesFromOutputFiles = configurationValues.getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
-        boolean enforceAtomicSampleName = configurationValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
-
-
-        FileSystemAccessProvider fileSystemAccessProvider = FileSystemAccessProvider.getInstance()
-        if (extractSamplesFromFastqList) {
-            List<String> fastqFiles = configurationValues.getString("fastq_list", "").split(StringConstants.SPLIT_SEMICOLON) as List<String>;
-            def sequenceDirectory = configurationValues.get("sequenceDirectory").toFile(context).getAbsolutePath();
-            int indexOfSampleID = sequenceDirectory.split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
-            samples += (List<Sample>)fastqFiles.collect {
-                it.split(StringConstants.SPLIT_SLASH)[indexOfSampleID]
-            }.unique().collect {
-                if (Sample.getSampleType(context, it) != Sample.SampleType.UNKNOWN) {
-                    return new Sample(context, it)
-                } else {
-                    logger.warning("Unknown sample type '${it}'")
-                    return (List<Sample>) null
-                }
-            }.findAll {
-                it != null
-            };
-        } else if (extractSamplesFromOutputFiles) {
-            //TODO etractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
-
-            File alignmentDirectory = getAlignmentDirectory(context)
-            if (!fileSystemAccessProvider.checkDirectory(alignmentDirectory, context, false)) {
-                logger.severe("Cannot retrieve samples from missing directory: " + alignmentDirectory.absolutePath);
-                return (List<Sample>) null;
-            }
-            List<File> filesInDirectory = fileSystemAccessProvider.listFilesInDirectory(alignmentDirectory).sort();
-
+        if (extractSamplesFromOutputFiles) {
+            File alignmentDirectory = getAlignmentDirectory(run)
+            List<File> filesInDirectory = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory);
             List<Sample.SampleType> availableTypes = [];
             for (File f : filesInDirectory) {
                 try {
@@ -245,29 +212,29 @@ public class COProjectsRuntimeService extends RuntimeService {
                     if (!enforceAtomicSampleName && split[1].isInteger() && split[1].length() <= 2)
                         sampleName = split[0..1].join(StringConstants.UNDERSCORE);
 
-                    Sample.SampleType type = Sample.getSampleType(context, sampleName)
+                    Sample.SampleType type = Sample.getSampleType(run, sampleName)
                     if (type == Sample.SampleType.UNKNOWN)
                         throw new Exception();
                     if (!availableTypes.contains(type)) {
                         availableTypes << type;
+                        samples << new Sample(run, sampleName);
                     }
-                    if (!samples.find { sample -> sample.name == sampleName })
-                        samples << new Sample(context, sampleName);
+
                 } catch (Exception ex) {
                     logger.warning("The sample for file ${f.getAbsolutePath()} could not be determined.");
                 }
             }
             if (samples.size() == 0) {
-                logger.warning("There were no samples available for dataset ${context.getDataSet().getId()}, extractSamplesFromOutputFiles is set to true, should this value be false?")
+                logger.warning("There were no samples available for dataset ${run.getDataSet().getId()}, extractSamplesFromOutputFiles is set to true, should this value be false?")
             }
         } else {
-            List<File> sampleDirs = fileSystemAccessProvider.listDirectoriesInDirectory(context.getInputDirectory());
+            List<File> sampleDirs = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(run.getInputDirectory());
             for (File sd : sampleDirs) {
-                if (Sample.getSampleType(context, sd.getName()) == Sample.SampleType.UNKNOWN) {
+                if (Sample.getSampleType(run, sd.getName()) == Sample.SampleType.UNKNOWN) {
                     logger.warning("Skipping directory ${sd.absolutePath}, name is not a known sample type.")
                     continue;
                 } else {
-                    samples.add(new Sample(context, sd));
+                    samples.add(new Sample(run, sd));
                 }
             }
         }
@@ -284,12 +251,13 @@ public class COProjectsRuntimeService extends RuntimeService {
         Configuration cfg = process.getConfiguration();
         File path = cfg.getConfigurationValues().get(dir).toFile(process);
         String temp = path.getAbsolutePath();
+//        temp = temp.replace("${pid}", process.getDataSet().toString());
         temp = temp.replace('${dataSet}', process.getDataSet().toString());
         temp = temp.replace('${sample}', sample.getName());
 
         return new File(temp);
     }
-
+//
     private File getSampleDirectory(ExecutionContext process, Sample sample) {
         return getInpDirectory(COConstants.CVALUE_SAMPLE_DIRECTORY, process, sample);
     }
@@ -297,45 +265,23 @@ public class COProjectsRuntimeService extends RuntimeService {
     private File getSequenceDirectory(ExecutionContext process, Sample sample, String run) {
         return new File(getInpDirectory(COConstants.CVALUE_SEQUENCE_DIRECTORY, process, sample).getAbsolutePath().replace('${run}', run));
     }
-
+//
+    //    @Override
     public List<LaneFileGroup> getLanesForSample(ExecutionContext context, Sample sample) {
         ProcessingFlag flag = context.setProcessingFlag(ProcessingFlag.STORE_FILES);
         List<LaneFileGroup> laneFiles = new LinkedList<LaneFileGroup>();
+        File sampleDirectory = getSampleDirectory(context, sample);
 
-
-        def configurationValues = context.getConfiguration().getConfigurationValues()
-        boolean getLanesFromFastqList = configurationValues.getString("fastq_list", "");
-        if (getLanesFromFastqList) {
-            // If fastq_list was set via command line or via config file.
-            List<File> fastqFiles = configurationValues.getString("fastq_list").split(StringConstants.SPLIT_SEMICOLON).collect { String it -> new File(it); };
-            def sequenceDirectory = configurationValues.get("sequenceDirectory").toFile(context).getAbsolutePath();
-            int indexOfSampleID = sequenceDirectory.split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${sample}' }
-            int indexOfRunID = sequenceDirectory.split(StringConstants.SPLIT_SLASH).findIndexOf { it -> it == '${run}' }
-
-            List<File> listOfFastqFilesForSample = fastqFiles.findAll { it.absolutePath.split(StringConstants.SPLIT_SLASH)[indexOfSampleID] == sample.getName() } as List<File>
-            List<String> listOfRunIDs = listOfFastqFilesForSample.collect { it.absolutePath.split(StringConstants.SPLIT_SLASH)[indexOfRunID] }.unique() as List<String>
-            listOfRunIDs.each { String runID ->
-                List<File> fastqFilesForRun = listOfFastqFilesForSample.findAll { it.absolutePath.split(StringConstants.SPLIT_SLASH)[indexOfRunID] == runID } as List<File>
-                List<LaneFileGroup> bundleFiles = QCPipelineScriptFileServiceHelper.bundleFiles(context, sample, runID, fastqFilesForRun);
-                laneFiles.addAll(bundleFiles);
-            }
-
-        } else {
-            // Default case
-
-            File sampleDirectory = getSampleDirectory(context, sample);
-
-            logger.postAlwaysInfo("Searching for lane files in directory ${sampleDirectory}")
-            List<File> runsForSample = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
-            for (File run : runsForSample) {
-                File runFilePath = getSequenceDirectory(context, sample, run.getName());
-                List<File> files = FileSystemInfoProvider.getInstance().listFilesInDirectory(runFilePath);
-                if (files.size() == 0)
-                    logger.postAlwaysInfo("\t There were no lane files in directory ${runFilePath}")
-                //Find file bundles
-                List<LaneFileGroup> bundleFiles = QCPipelineScriptFileServiceHelper.bundleFiles(context, sample, run.getName(), files);
-                laneFiles.addAll(bundleFiles);
-            }
+        logger.postAlwaysInfo("Searching for lane files in directory ${sampleDirectory}")
+        List<File> runsForSample = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
+        for (File run : runsForSample) {
+            File runFilePath = getSequenceDirectory(context, sample, run.getName());
+            List<File> files = FileSystemInfoProvider.getInstance().listFilesInDirectory(runFilePath);
+            if (files.size() == 0)
+                logger.postAlwaysInfo("\t There were no lane files in directory ${runFilePath}")
+            //Find file bundles
+            List<LaneFileGroup> bundleFiles = QCPipelineScriptFileServiceHelper.bundleFiles(context, sample, run.getName(), files);
+            laneFiles.addAll(bundleFiles);
         }
         if (laneFiles.size() == 0) {
             context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("There were no lane files available for sample ${sample.getName()}"));
@@ -408,12 +354,7 @@ public class COProjectsRuntimeService extends RuntimeService {
         if (useMergedBamsFromInputDirectory)
             searchDirectory = getInpDirectory(COConstants.CVALUE_ALIGNMENT_INPUT_DIRECTORY_NAME, context, sample);
 
-        synchronized (alreadySearchedMergedBamFolders) {
-            if (!alreadySearchedMergedBamFolders.contains(searchDirectory)) {
-                logger.postAlwaysInfo("Looking for merged bam files in directory ${searchDirectory.getAbsolutePath()}");
-                alreadySearchedMergedBamFolders << searchDirectory;
-            }
-        }
+        logger.postAlwaysInfo("Looking for merged bam files in directory ${searchDirectory.getAbsolutePath()}");
 
         mergedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
 

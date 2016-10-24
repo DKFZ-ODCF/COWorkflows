@@ -2,7 +2,7 @@
 
 #PBS -q highmem
 #PBS -l walltime=50:00:00
-#PBS -l nodes=1:ppn=12
+#PBS -l nodes=1:ppn=12:lsdf
 #PBS -l mem=120g
 #PBS -m a
 

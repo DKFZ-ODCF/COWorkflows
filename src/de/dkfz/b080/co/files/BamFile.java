@@ -1,6 +1,7 @@
 package de.dkfz.b080.co.files;
 
 import de.dkfz.b080.co.methods.Common;
+import de.dkfz.b080.co.methods.Samtools;
 import de.dkfz.roddy.config.Configuration;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.jobs.*;
@@ -42,9 +43,6 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     private boolean _isTargetExractedFile;
     private OnTargetCoverageTextFile onTargetCoverageTextFile;
     private QCSummaryFile qcSummaryFile;
-    private TextFile qcJsonFile;
-    private TextFile dipStatisticsFile;
-    private InsertSizesPlotFile dipStatisticsPlotFile;
 
     public BamFile(File path, ExecutionContext context, FileStageSettings fileStageSettings) {
         super(path, context, new JobResult(context, null, JobDependencyID.getFileExistedFakeJob(context), false, null, null, null), null, fileStageSettings);
@@ -196,12 +194,6 @@ public class BamFile extends COBaseFile implements ITestdataSource {
         return qcSummaryFile;
     }
 
-    public TextFile getQcJsonFile() { return qcJsonFile; }
-
-    public TextFile getDipStatisticsFile() { return dipStatisticsFile; }
-
-    public InsertSizesPlotFile getDipStatisticsPlotFile() { return dipStatisticsPlotFile; }
-
     public void setChromosomeDiffStatisticsFile(ChromosomeDiffValueFile chromosomeDiffStatisticsFile) {
         this.chromosomeDiffStatisticsFile = chromosomeDiffStatisticsFile;
     }
@@ -241,12 +233,6 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     public void setQcSummaryFile(QCSummaryFile qcSummaryFile) {
         this.qcSummaryFile = qcSummaryFile;
     }
-
-    public void setQcJsonFile(TextFile qcJsonFile) { this.qcJsonFile = qcJsonFile; }
-
-    public void setDipStatisticsFile (TextFile dipStatisticsFile) { this.dipStatisticsFile = dipStatisticsFile; }
-
-    public void setDipStatisticsPlotFile (InsertSizesPlotFile dipStatisticsPlotFile) { this.dipStatisticsPlotFile = dipStatisticsPlotFile; }
 
     public ChromosomeDiffValueFile getChromosomeDiffStatisticsFile() {
         return chromosomeDiffStatisticsFile;

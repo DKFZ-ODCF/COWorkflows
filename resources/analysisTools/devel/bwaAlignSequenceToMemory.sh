@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -l walltime=50:00:00
-#PBS -l nodes=1:ppn=8
+#PBS -l nodes=1:ppn=8:lsdf
 #PBS -l mem=3600m
 #PBS -m a
 #PBS -S /bin/bash

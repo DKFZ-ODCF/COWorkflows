@@ -8,6 +8,10 @@ import de.dkfz.roddy.execution.jobs.JobResult;
  */
 public class BamIndexFile extends COBaseFile {
 
+//    public BamIndexFile(BamFile bamFile, JobResult jobResult) {
+//        super(bamFile, bamFile.getFileStage(), jobResult);
+//    }
+
     public BamIndexFile(BamFile bamFile) {
         super(bamFile, bamFile.getFileStage());
     }

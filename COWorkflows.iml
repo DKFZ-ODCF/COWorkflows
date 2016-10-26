@@ -19,26 +19,10 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <content url="file://$MODULE_DIR$/../../dist/resources" />
-    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="bcpg-jdk15on-149" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../Roddy/dist/Roddy_2.1.28.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../../Roddy/dist/plugins/PluginBase_1.0.24/PluginBase.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="roddyBundledLibraries_R2.2" level="application" />
+    <orderEntry type="library" name="PluginBase_1.0.24_R2.2" level="application" />
+    <orderEntry type="library" name="roddy_R2.2" level="application" />
   </component>
 </module>

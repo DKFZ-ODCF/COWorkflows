@@ -104,7 +104,7 @@ public class COProjectsRuntimeService extends RuntimeService {
             return true;
 
         //Temporary files are also considered as valid.
-        if(baseFile.isTemporaryFile())
+        if (baseFile.isTemporaryFile())
             return true;
 
         try {
@@ -199,8 +199,12 @@ public class COProjectsRuntimeService extends RuntimeService {
         List<Sample> samples = new LinkedList<Sample>();
         boolean extractSamplesFromOutputFiles = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
         boolean enforceAtomicSampleName = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
+        List<String> samplesPassedInConfig = run.getConfiguration().getConfigurationValues().getString("sample_list", "").split("[;]") as List<String>
 
-        if (extractSamplesFromOutputFiles) {
+        if (samplesPassedInConfig) {
+            logger.postSometimesInfo("Samples were passed as configuration value: ${samplesPassedInConfig}")
+            return samplesPassedInConfig.collect { String it -> new Sample(run, it) }
+        } else if (extractSamplesFromOutputFiles) {
             File alignmentDirectory = getAlignmentDirectory(run)
             List<File> filesInDirectory = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory);
             List<Sample.SampleType> availableTypes = [];

@@ -24,5 +24,6 @@
     <orderEntry type="library" name="roddyBundledLibraries_R2.2" level="application" />
     <orderEntry type="library" name="PluginBase_1.0.24_R2.2" level="application" />
     <orderEntry type="library" name="roddy_R2.2" level="application" />
+    <orderEntry type="library" name="DefaultPlugin" level="application" />
   </component>
 </module>

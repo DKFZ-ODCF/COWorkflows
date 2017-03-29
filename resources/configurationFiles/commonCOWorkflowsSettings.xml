@@ -23,7 +23,7 @@
         <cvalue name="fileCol" tags="mandatory"         value="SequenceFile"    description="Metadata column specifying the FASTQ or BAM file to use as input. Default: SequenceFile. Default if undefined: Error."/>
 
         <!-- List up all values as their own cvalues, so you can describe them. Just put in the varname below -->
-        <cvalue name='metadataTableColumnIDs' value='datasetCol,fileCol,mergeCol,markCol,readLayoutCol,runCol,mateCol' type="string"/>
+        <cvalue name='metadataTableColumnIDs' value='datasetCol,mergeCol,markCol,runCol,mateCol,fileCol,readLayoutCol' type="string"/>
     </configurationvalues>
     <processingTools>
         <tool name="analyzeBamHeader" value="analyzeBamHeader.sh" basepath="tools"/>

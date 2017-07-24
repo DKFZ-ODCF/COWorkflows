@@ -9,6 +9,7 @@ import de.dkfz.roddy.core.DataSet;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.core.ExecutionContextError;
 import de.dkfz.roddy.core.Workflow;
+import de.dkfz.roddy.knowledge.files.BaseFile;
 
 import java.io.File;
 import java.util.Arrays;
@@ -58,9 +59,9 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
                             File path = new File(bamFiles.get(i));
                             Sample sample = ((COProjectsRuntimeService) context.getRuntimeService()).getSamplesForRun(context).get(i);
                             if (sample.getType() == Sample.SampleType.CONTROL)
-                                bamControlMerged = new BamFile(path, context, new COFileStageSettings(sample, dataSet));
+                                bamControlMerged = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(path, context, new COFileStageSettings(sample, dataSet), null));
                             else if (sample.getType() == Sample.SampleType.TUMOR)
-                                bamTumorMerged = new BamFile(path, context, new COFileStageSettings(sample, dataSet));
+                                bamTumorMerged = (new BamFile(new BaseFile.ConstructionHelperForSourceFiles(path, context, new COFileStageSettings(sample, dataSet), null)));
 
                         }
                         // This code block is from R2.3 / new COWorkflows. However, if not neccessary, I will not port it! It is used, when samples were not passed with sample_list
@@ -90,7 +91,7 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
                 BamFile[] copy = new BamFile[found.length];
                 for (int i = 0; i < found.length; i++) {
                     if (found[i] == null) continue;
-                    copy[i] = new BamFile(found[i].getPath(), context, found[i].getFileStage().copy());
+                    copy[i] = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(found[i].getPath(), context, found[i].getFileStage().copy(), null));
                     copy[i].setAsSourceFile();
                 }
                 found = copy;

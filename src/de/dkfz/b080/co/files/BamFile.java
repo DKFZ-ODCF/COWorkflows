@@ -44,32 +44,12 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     private OnTargetCoverageTextFile onTargetCoverageTextFile;
     private QCSummaryFile qcSummaryFile;
 
-    public BamFile(File path, ExecutionContext context, FileStageSettings fileStageSettings) {
-        super(path, context, new JobResult(context, null, JobDependencyID.getFileExistedFakeJob(context), false, null, null, null), null, fileStageSettings);
+    public BamFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
     }
 
-    public BamFile(BamFile bamFile) {
-        super(bamFile, bamFile.getFileStage());
-    }
-
-    public BamFile(AlignedSequenceFileGroup parentFiles) {
-        super(parentFiles, parentFiles.getFilesInGroup().get(0).getFileStage().decreaseLevel());
-    }
-
-    public BamFile(AlignedSequenceFile parentFile) {
-        super((AlignedSequenceFileGroup)parentFile.getFileGroups().get(0), parentFile.getFileStage().decreaseLevel());
-    }
-
-    public BamFile(LaneFile laneFile) {
-        super((LaneFileGroup)laneFile.getFileGroups().get(0), laneFile.getFileStage().decreaseLevel());
-    }
-
-    public BamFile(LaneFileGroup parentFiles) {
-        super(parentFiles, parentFiles.getFilesInGroup().get(0).getFileStage().decreaseLevel());
-    }
-
-    public BamFile(BamFileGroup parentFiles) {
-        super(parentFiles, parentFiles.getFilesInGroup().get(0).getFileStage().decreaseLevel());
+    public BamFile(BamFile minorBam) {
+        super(minorBam);
     }
 
     @Override
@@ -442,7 +422,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
 //        Configuration cfg = controlBam.getExecutionContext().getConfiguration();
         final BamFile THIS = this;
         //First one executes locally or via ssh but without a cluster system.
-        Stream<String> stream = CommandFactory.getInstance().executesWithoutJobSystem() ? indices.parallelStream() : indices.stream();
+        Stream<String> stream = JobManager.getInstance().executesWithoutJobSystem() ? indices.parallelStream() : indices.stream();
         stream.forEach(index -> callWithIndex(toolID, otherBam, indexParameterName, map, THIS, index));
 
 

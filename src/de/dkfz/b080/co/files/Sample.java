@@ -83,7 +83,7 @@ public class Sample implements Comparable<Sample>, Serializable {
     }
 
     public List<LaneFileGroup> getLanes() {
-        return ((COProjectsRuntimeService) project.getRuntimeService()).getLanesForSample(executionContext, this);
+        return ((COProjectsRuntimeService) executionContext.getRuntimeService()).getLanesForSample(executionContext, this);
     }
 
     public String getName() {

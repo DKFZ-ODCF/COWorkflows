@@ -17,16 +17,12 @@ public class VCFFileForIndels extends BaseFile {
 
     private VCFFileForIndels somaticFunctionalIndelsFile;
 
-    public VCFFileForIndels(BamFile parentFile) {
-        super(parentFile);
+    public VCFFileForIndels(ConstructionHelperForBaseFiles helper) {
+        super(helper);
     }
 
-    /**
-     * For i.e. somatic indel file
-     * @param parentFile
-     */
-    public VCFFileForIndels(VCFFileForIndels parentFile) {
-        super(parentFile);
+    public VCFFileForIndels(BaseFile parent) {
+        super(parent);
     }
 
 

@@ -6,8 +6,7 @@ import de.dkfz.roddy.config.ConfigurationValue;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.io.ExecutionResult;
 import de.dkfz.roddy.execution.io.ExecutionService;
-import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider;
-import de.dkfz.roddy.execution.jobs.CommandFactory;
+import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider;
 import de.dkfz.roddy.execution.jobs.Job;
 import de.dkfz.roddy.execution.jobs.JobResult;
 import de.dkfz.roddy.execution.jobs.cluster.pbs.ChangedProcessDependencyProcessingCommand;
@@ -36,9 +35,20 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
     private FastqcFile fastqcFile;
     private AlignedSequenceFile alignedSequenceFile;
 
-    public LaneFile(File path, ExecutionContext executionContext, JobResult creatingJobsResult, List<BaseFile> parentFiles, FileStageSettings settings) {
-        super(path, executionContext, creatingJobsResult, parentFiles, settings);
-        setAsSourceFile(); // Lane files are always source files.
+    public LaneFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
+	setAsSourceFile();
+    }
+
+    /** Copy constructor **/
+    public LaneFile(LaneFile parent, ExecutionContext newContext) {
+        super(parent);
+        this.sequencerID = parent.sequencerID;
+        this.decompressionString = parent.decompressionString;
+        this.recompressionString = parent.recompressionString;
+        this.fastqcFile = parent.fastqcFile;
+        this.alignedSequenceFile = parent.alignedSequenceFile;
+        this.setExecutionContext(newContext);
     }
 
     @Override
@@ -191,7 +201,7 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
         File targetFilePath = new File(testdataBasePath + File.separator + context.getDataSet() + fileRelativePath);
         ExecutionService es = ExecutionService.getInstance();
 
-        if (!FileSystemInfoProvider.getInstance().checkDirectory(targetFilePath.getParentFile(), context, true)) {
+        if (!FileSystemAccessProvider.getInstance().checkDirectory(targetFilePath.getParentFile(), context, true)) {
             throw new RuntimeException("Could not create output directory " + targetFilePath.getParentFile());
         }
 //        String zipTool = cfg.getConfigurationValue("ZIPTOOL").toString();

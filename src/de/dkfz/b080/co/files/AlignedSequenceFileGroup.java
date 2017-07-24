@@ -56,7 +56,7 @@ public class AlignedSequenceFileGroup extends FileGroup<AlignedSequenceFile> {
 
         LaneFile parentFile = (LaneFile) filesInGroup.get(0).getParentFiles().get(0);
         Configuration configuration = context.getConfiguration();
-        BamFile bamFile = new BamFile(this);
+        BamFile bamFile = (BamFile)BaseFile.constructManual(BamFile.class, this);
         FlagstatsFile flagstatsFile = new FlagstatsFile(bamFile);
         BamIndexFile indexFile = new BamIndexFile(bamFile);
 

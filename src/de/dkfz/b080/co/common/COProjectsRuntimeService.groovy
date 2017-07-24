@@ -11,8 +11,8 @@ import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.*
 import de.dkfz.roddy.execution.io.ExecutionResult
 import de.dkfz.roddy.execution.io.ExecutionService
-import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider
-import de.dkfz.roddy.execution.jobs.CommandFactory
+import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
+import de.dkfz.roddy.execution.jobs.JobManager
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
 
@@ -71,7 +71,7 @@ public class COProjectsRuntimeService extends RuntimeService {
 
     @Override
     public String createJobName(ExecutionContext executionContext, BaseFile file, String toolID, boolean reduceLevel) {
-        return CommandFactory.getInstance().createJobName(file, toolID, reduceLevel);
+        return JobManager.getInstance().createJobName(file, toolID, reduceLevel);
     }
 
     /**
@@ -200,13 +200,14 @@ public class COProjectsRuntimeService extends RuntimeService {
         boolean extractSamplesFromOutputFiles = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
         boolean enforceAtomicSampleName = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
         List<String> samplesPassedInConfig = run.getConfiguration().getConfigurationValues().getString("sample_list", "").split("[;]") as List<String>
+        boolean samplesFromConfig = run.getConfiguration().getConfigurationValues().getString("sample_list", "")
 
-        if (samplesPassedInConfig) {
+        if (samplesFromConfig) {
             logger.postSometimesInfo("Samples were passed as configuration value: ${samplesPassedInConfig}")
             return samplesPassedInConfig.collect { String it -> new Sample(run, it) }
         } else if (extractSamplesFromOutputFiles) {
             File alignmentDirectory = getAlignmentDirectory(run)
-            List<File> filesInDirectory = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory);
+            List<File> filesInDirectory = FileSystemAccessProvider.getInstance().listFilesInDirectory(alignmentDirectory);
             List<Sample.SampleType> availableTypes = [];
             for (File f : filesInDirectory) {
                 try {
@@ -232,7 +233,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 logger.warning("There were no samples available for dataset ${run.getDataSet().getId()}, extractSamplesFromOutputFiles is set to true, should this value be false?")
             }
         } else {
-            List<File> sampleDirs = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(run.getInputDirectory());
+            List<File> sampleDirs = FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(run.getInputDirectory());
             for (File sd : sampleDirs) {
                 if (Sample.getSampleType(run, sd.getName()) == Sample.SampleType.UNKNOWN) {
                     logger.warning("Skipping directory ${sd.absolutePath}, name is not a known sample type.")
@@ -277,10 +278,10 @@ public class COProjectsRuntimeService extends RuntimeService {
         File sampleDirectory = getSampleDirectory(context, sample);
 
         logger.postAlwaysInfo("Searching for lane files in directory ${sampleDirectory}")
-        List<File> runsForSample = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
+        List<File> runsForSample = FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
         for (File run : runsForSample) {
             File runFilePath = getSequenceDirectory(context, sample, run.getName());
-            List<File> files = FileSystemInfoProvider.getInstance().listFilesInDirectory(runFilePath);
+            List<File> files = FileSystemAccessProvider.getInstance().listFilesInDirectory(runFilePath);
             if (files.size() == 0)
                 logger.postAlwaysInfo("\t There were no lane files in directory ${runFilePath}")
             //Find file bundles
@@ -301,7 +302,7 @@ public class COProjectsRuntimeService extends RuntimeService {
         final String pairedBamSuffix = context.getConfiguration().getConfigurationValues().get("pairedBamSuffix", "paired.bam.sorted.bam")
         //TODO Create constants
         List<String> filters = ["${sample.getName()}*${pairedBamSuffix}".toString()]
-        List<File> pairedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory, filters);
+        List<File> pairedBamPaths = FileSystemAccessProvider.getInstance().listFilesInDirectory(alignmentDirectory, filters);
 
         int laneID = 0;
         List<BamFile> bamFiles = pairedBamPaths.collect({
@@ -318,8 +319,8 @@ public class COProjectsRuntimeService extends RuntimeService {
                 String run = split[runIndex..-2].join(StringConstants.UNDERSCORE);
                 String lane = String.format("L%03d", laneID);
 
+                BamFile bamFile = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(f, context, new COFileStageSettings(lane, run, sample, context.getDataSet()), null))
 
-                BamFile bamFile = new BamFile(f, context, new COFileStageSettings(lane, run, sample, context.getDataSet()))
                 bamFile.setAsSourceFile();
                 return bamFile;
         })
@@ -360,7 +361,7 @@ public class COProjectsRuntimeService extends RuntimeService {
 
         logger.postAlwaysInfo("Looking for merged bam files in directory ${searchDirectory.getAbsolutePath()}");
 
-        mergedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
+        mergedBamPaths = FileSystemAccessProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
 
         List<BamFile> bamFiles = mergedBamPaths.collect({
             File f ->
@@ -373,7 +374,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 String run = split[runIndex..-2].join(StringConstants.UNDERSCORE);
 
 
-                BamFile bamFile = new BamFile(f, context, new COFileStageSettings(run, sample, context.getDataSet()))
+                BamFile bamFile = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(f, context, new COFileStageSettings(run, sample, context.getDataSet()), null))
                 bamFile.setAsSourceFile();
                 return bamFile;
         })

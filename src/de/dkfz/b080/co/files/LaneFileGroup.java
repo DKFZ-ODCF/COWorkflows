@@ -4,7 +4,7 @@ import de.dkfz.roddy.config.Configuration;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.io.ExecutionResult;
 import de.dkfz.roddy.execution.io.ExecutionService;
-import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider;
+import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider;
 import de.dkfz.roddy.execution.jobs.Job;
 import de.dkfz.roddy.execution.jobs.JobResult;
 import de.dkfz.roddy.knowledge.files.BaseFile;
@@ -133,7 +133,7 @@ public class LaneFileGroup extends FileGroup<LaneFile> {
         LaneFile laneFile1 = filesInGroup.get(1);
 
         Configuration configuration = run.getConfiguration();
-        BamFile bamFile = new BamFile(this);
+        BamFile bamFile = (BamFile) BaseFile.constructManual(BamFile.class, this);
         FlagstatsFile flagstatsFile = new FlagstatsFile(bamFile);
         BamIndexFile bamIndexFile = new BamIndexFile(bamFile);
 
@@ -193,7 +193,7 @@ public class LaneFileGroup extends FileGroup<LaneFile> {
         //create target directory
         ExecutionContext context = getExecutionContext();
         ExecutionService es = ExecutionService.getInstance();
-        FileSystemInfoProvider fs = FileSystemInfoProvider.getInstance();
+        FileSystemAccessProvider fs = FileSystemAccessProvider.getInstance();
         Configuration cfg = context.getConfiguration();
         String inputBasePath = context.getInputDirectory().getAbsolutePath();
         String testdataBasePath = cfg.getConfigurationValues().get("testdataBaseDirectory").toFile(context).toString();

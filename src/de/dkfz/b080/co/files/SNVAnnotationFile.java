@@ -8,15 +8,14 @@ import de.dkfz.roddy.knowledge.methods.GenericMethod;
  */
 public class SNVAnnotationFile extends BaseFile {
 
-    private BamFile parentFile;
+    private BaseFile parentFile;
 
-    public SNVAnnotationFile(BamFile parentFile) {
-        super(parentFile);
-        this.parentFile = parentFile;
-    }
+    public SNVAnnotationFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
 
-    public SNVAnnotationFile(SNVAnnotationFile parentFile) {
-        super(parentFile);
+        if (helper instanceof ConstructionHelperForGenericCreation){
+            this.parentFile = (BaseFile) ((ConstructionHelperForGenericCreation) helper).parentObject;
+        }
     }
 
     public VCFFileWithCheckpointFile annotate() {

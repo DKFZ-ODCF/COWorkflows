@@ -1,12 +1,18 @@
 package de.dkfz.b080.co.common;
 
 import de.dkfz.b080.co.files.BamFile;
+import de.dkfz.b080.co.files.COFileStageSettings;
 import de.dkfz.b080.co.files.Sample;
+import de.dkfz.roddy.StringConstants;
+import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.DataSet;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.core.ExecutionContextError;
 import de.dkfz.roddy.core.Workflow;
+import de.dkfz.roddy.knowledge.files.BaseFile;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +26,7 @@ import static de.dkfz.b080.co.files.COConstants.FLAG_EXTRACT_SAMPLES_FROM_OUTPUT
  */
 public abstract class WorkflowUsingMergedBams extends Workflow {
 
+    public static final String BAMFILE_LIST = "bamfile_list";
     private Map<DataSet, BamFile[]> foundInputFiles = new LinkedHashMap<>();
 
     public BamFile[] getInitialBamFiles(ExecutionContext context) {
@@ -54,7 +61,7 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
                 BamFile[] copy = new BamFile[found.length];
                 for (int i = 0; i < found.length; i++) {
                     if (found[i] == null) continue;
-                    copy[i] = new BamFile(found[i].getPath(), context, found[i].getFileStage().copy());
+                    copy[i] = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(found[i].getPath(), context, found[i].getFileStage().copy(), null));
                     copy[i].setAsSourceFile();
                 }
                 found = copy;

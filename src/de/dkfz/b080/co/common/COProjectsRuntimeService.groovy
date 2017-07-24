@@ -5,17 +5,19 @@
 package de.dkfz.b080.co.common
 
 import de.dkfz.b080.co.files.*
+import de.dkfz.roddy.Roddy
 import de.dkfz.roddy.StringConstants
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.*
 import de.dkfz.roddy.execution.io.ExecutionResult
 import de.dkfz.roddy.execution.io.ExecutionService
-import de.dkfz.roddy.execution.io.fs.FileSystemInfoProvider
-import de.dkfz.roddy.execution.jobs.CommandFactory
+import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
+import de.dkfz.roddy.execution.jobs.JobManager
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
 
 import java.util.function.Consumer
+import java.util.logging.Logger
 
 import static de.dkfz.b080.co.files.COConstants.*
 
@@ -71,7 +73,7 @@ public class COProjectsRuntimeService extends RuntimeService {
 
     @Override
     public String createJobName(ExecutionContext executionContext, BaseFile file, String toolID, boolean reduceLevel) {
-        return CommandFactory.getInstance().createJobName(file, toolID, reduceLevel);
+        return JobManager.getInstance().createJobName(file, toolID, reduceLevel);
     }
 
     /**
@@ -203,7 +205,7 @@ public class COProjectsRuntimeService extends RuntimeService {
         boolean enforceAtomicSampleName = configurationValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
 
 
-        FileSystemInfoProvider fileSystemAccessProvider = FileSystemInfoProvider.getInstance()
+        FileSystemAccessProvider fileSystemAccessProvider = FileSystemAccessProvider.getInstance()
         if (extractSamplesFromFastqList) {
             List<String> fastqFiles = configurationValues.getString("fastq_list", "").split(StringConstants.SPLIT_SEMICOLON) as List<String>;
             def sequenceDirectory = configurationValues.get("sequenceDirectory").toFile(context).getAbsolutePath();
@@ -224,7 +226,7 @@ public class COProjectsRuntimeService extends RuntimeService {
             //TODO etractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
 
             File alignmentDirectory = getAlignmentDirectory(context)
-            if (!fileSystemAccessProvider.checkDirectory(alignmentDirectory, context, false)) {
+            if (!FileSystemAccessProvider.getInstance().checkDirectory(alignmentDirectory, context, false)) {
                 logger.severe("Cannot retrieve samples from missing directory: " + alignmentDirectory.absolutePath);
                 return (List<Sample>) null;
             }
@@ -257,7 +259,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 logger.warning("There were no samples available for dataset ${context.getDataSet().getId()}, extractSamplesFromOutputFiles is set to true, should this value be false?")
             }
         } else {
-            List<File> sampleDirs = fileSystemAccessProvider.listDirectoriesInDirectory(context.getInputDirectory());
+            List<File> sampleDirs = FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(context.getInputDirectory());
             for (File sd : sampleDirs) {
                 if (Sample.getSampleType(context, sd.getName()) == Sample.SampleType.UNKNOWN) {
                     logger.warning("Skipping directory ${sd.absolutePath}, name is not a known sample type.")
@@ -271,7 +273,7 @@ public class COProjectsRuntimeService extends RuntimeService {
     }
 
     public List<String> getLibrariesForSample(Sample sample) {
-        return FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(sample.path).collect { File f -> f.name } as List<String>;
+        return FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(sample.path).collect { File f -> f.name } as List<String>;
     }
 
     private File getAlignmentDirectory(ExecutionContext run) {
@@ -344,12 +346,12 @@ public class COProjectsRuntimeService extends RuntimeService {
         return getLanesForSample(context, sample, library);
     }
 
-    private void loadFastqFilesFromDirectory(File sampleDirectory, ExecutionContext context, Sample sample, String library = null, LinkedList<LaneFileGroup> laneFiles) {
+    private void loadFastqFilesFromDirectory(File sampleDirectory, ExecutionContext context, Sample sample, String library = null, List<LaneFileGroup> laneFiles) {
         logger.postAlwaysInfo("Searching for lane files in directory ${sampleDirectory}")
-        List<File> runsForSample = FileSystemInfoProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
+        List<File> runsForSample = FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(sampleDirectory);
         for (File run : runsForSample) {
             File runFilePath = getSequenceDirectory(context, sample, run.getName(), library);
-            List<File> files = FileSystemInfoProvider.getInstance().listFilesInDirectory(runFilePath);
+            List<File> files = FileSystemAccessProvider.getInstance().listFilesInDirectory(runFilePath);
             if (files.size() == 0)
                 logger.postAlwaysInfo("\t There were no lane files in directory ${runFilePath}")
             //Find file bundles
@@ -363,7 +365,7 @@ public class COProjectsRuntimeService extends RuntimeService {
         final String pairedBamSuffix = context.getConfiguration().getConfigurationValues().get("pairedBamSuffix", "paired.bam.sorted.bam")
         //TODO Create constants
         List<String> filters = ["${sample.getName()}*${pairedBamSuffix}".toString()]
-        List<File> pairedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(alignmentDirectory, filters);
+        List<File> pairedBamPaths = FileSystemAccessProvider.getInstance().listFilesInDirectory(alignmentDirectory, filters);
 
         int laneID = 0;
         List<BamFile> bamFiles = pairedBamPaths.collect({
@@ -380,8 +382,8 @@ public class COProjectsRuntimeService extends RuntimeService {
                 String run = split[runIndex..-2].join(StringConstants.UNDERSCORE);
                 String lane = String.format("L%03d", laneID);
 
+                BamFile bamFile = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(f, context, new COFileStageSettings(lane, run, sample, context.getDataSet()), null))
 
-                BamFile bamFile = new BamFile(f, context, new COFileStageSettings(lane, run, sample, context.getDataSet()))
                 bamFile.setAsSourceFile();
                 return bamFile;
         })
@@ -427,7 +429,7 @@ public class COProjectsRuntimeService extends RuntimeService {
             }
         }
 
-        mergedBamPaths = FileSystemInfoProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
+        mergedBamPaths = FileSystemAccessProvider.getInstance().listFilesInDirectory(searchDirectory, filters);
 
         List<BamFile> bamFiles = mergedBamPaths.collect({
             File f ->
@@ -440,7 +442,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 String run = split[runIndex..-2].join(StringConstants.UNDERSCORE);
 
 
-                BamFile bamFile = new BamFile(f, context, new COFileStageSettings(run, sample, context.getDataSet()))
+                BamFile bamFile = new BamFile(new BaseFile.ConstructionHelperForSourceFiles(f, context, new COFileStageSettings(run, sample, context.getDataSet()), null))
                 bamFile.setAsSourceFile();
                 return bamFile;
         })

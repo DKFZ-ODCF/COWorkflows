@@ -10,13 +10,13 @@ public class SNVAnnotationFile extends BaseFile {
 
     private BamFile parentFile;
 
-    public SNVAnnotationFile(BamFile parentFile) {
-        super(parentFile);
-        this.parentFile = parentFile;
+    public SNVAnnotationFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
     }
 
-    public SNVAnnotationFile(SNVAnnotationFile parentFile) {
-        super(parentFile);
+    public SNVAnnotationFile(BaseFile parent, BamFile parentFile) {
+        super(parent);
+        this.parentFile = parentFile;
     }
 
     public VCFFileWithCheckpointFile annotate() {

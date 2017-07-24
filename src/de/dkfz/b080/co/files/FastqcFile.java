@@ -8,7 +8,11 @@ import de.dkfz.roddy.knowledge.files.BaseFile;
  */
 public class FastqcFile extends COBaseFile {
 
-    public FastqcFile(LaneFile parentFile) {
-        super(parentFile);
+    public FastqcFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
+    }
+
+    public FastqcFile(BaseFile parent) {
+        super(parent);
     }
 }

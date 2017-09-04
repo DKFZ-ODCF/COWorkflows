@@ -37,7 +37,7 @@ package de.dkfz.b080.co.methods
 //                String id = String.format("%s_%s_%s_%s", runningProcess.getDataSet().getId(), sample.getName(), runName, lane, indexFile);
 //
 //
-//                JobResult result = new JobResult(runningProcess, null, JobDependencyID.getFileExistedFakeJob(), false, null, null, null);
+//                JobResult result = new JobResult(runningProcess, null, JobDependencyID.getFileExistedFakeJobID(), false, null, null, null);
 //                LinkedList<LaneFile> filesInGroup = new LinkedList<LaneFile>(Arrays.asList(
 //                        new LaneFile(_f0, runningProcess, result, null, new FileStageSettings(id, indexFile, 0, runName, sample, runningProcess.getDataSet(), FileStage.INDEXEDLANE)),
 //                        new LaneFile(_f1, runningProcess, result, null, new FileStageSettings(id, index2, 1, runName, sample, runningProcess.getDataSet(), FileStage.INDEXEDLANE))));
@@ -80,7 +80,7 @@ package de.dkfz.b080.co.methods
 //
 //                    LinkedList<LaneFile> filesInGroup = new LinkedList<LaneFile>();
 //
-//                    JobResult result = new JobResult(runningProcess, null, JobDependencyID.getFileExistedFakeJob(), false, null, null, null);
+//                    JobResult result = new JobResult(runningProcess, null, JobDependencyID.getFileExistedFakeJobID(), false, null, null, null);
 //                    filesInGroup << new LaneFile(_f0, runningProcess, result, null, new FileStageSettings(id, index0, 0, runName, sample, runningProcess.getDataSet(), FileStage.INDEXEDLANE));
 //                    filesInGroup << new LaneFile(_f1, runningProcess, result, null, new FileStageSettings(id, index1, 1, runName, sample, runningProcess.getDataSet(), FileStage.INDEXEDLANE));
 //

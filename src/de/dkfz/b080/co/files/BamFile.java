@@ -417,7 +417,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
      * @return
      */
     private IndexedFileObjects runParallel(String indicesID, String toolID, BamFile otherBam, String indexParameterName) {
-        List<String> indices = getExecutionContext().getConfiguration().getConfigurationValues().get(indicesID).toStringList();
+        List<String> indices = getExecutionContext().getConfiguration().getConfigurationValues().getOrThrow(indicesID).toStringList();
         Map<String, FileObject> map = new LinkedHashMap<>();
 //        Configuration cfg = controlBam.getExecutionContext().getConfiguration();
         final BamFile THIS = this;

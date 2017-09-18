@@ -115,7 +115,7 @@ class Common {
         JobResult jobResult = new Job(run, run.createJobName(pFiles[0], CHROMOSOMEDIFF), CHROMOSOMEDIFF, parameters, pFiles).run();
         tFile.setCreatingJobsResult(jobResult);
         pFile.setCreatingJobsResult(jobResult);
-        ChromosomeDiffFileGroup fGroup = new ChromosomeDiffFileGroup((List<BaseFile>)[tFile, pFile]);
+        ChromosomeDiffFileGroup fGroup = new ChromosomeDiffFileGroup([tFile, pFile] as List<BaseFile>);
         return fGroup;
     }
 
@@ -202,7 +202,7 @@ class Common {
                 }
         }
 
-        JobResult jobResult = new Job(run, run.createJobName(files[0], QCSUMMARY), QCSUMMARY, parameters, new LinkedList<BaseFile>(files), (List<BaseFile>)[(COBaseFile)qcSummaryFile]).run();
+        JobResult jobResult = new Job(run, run.createJobName(files[0], QCSUMMARY), QCSUMMARY, parameters, new LinkedList<BaseFile>(files), [(COBaseFile)qcSummaryFile] as List<BaseFile>).run();
         qcSummaryFile.setCreatingJobsResult(jobResult);
         return qcSummaryFile;
     }

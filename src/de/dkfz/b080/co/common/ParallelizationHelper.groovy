@@ -5,29 +5,31 @@ import de.dkfz.roddy.execution.jobs.JobManager;
 import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.FileObject;
 import de.dkfz.roddy.knowledge.files.IndexedFileObjects;
-import de.dkfz.roddy.knowledge.methods.GenericMethod;
+import de.dkfz.roddy.knowledge.methods.GenericMethod
+import groovy.transform.CompileStatic
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
  * Created by heinold on 13.01.16.
  */
-public class ParallelizationHelper {
+@CompileStatic
+class ParallelizationHelper {
 
     /**
      * This code fragment runs thing in parallel. The run is different for various runtime systems (Local, PBS).
     */
-    public static IndexedFileObjects runParallel(String indicesID, String toolID, BaseFile firstFile, BaseFile otherFile, String indexParameterName) {
+    static IndexedFileObjects runParallel(String indicesID, String toolID, BaseFile firstFile, BaseFile otherFile, String indexParameterName, LinkedHashMap<String,String> parameters = [:]) {
         ExecutionContext executionContext = firstFile.getExecutionContext();
         List<String> indices = executionContext.getConfiguration().getConfigurationValues().get(indicesID).toStringList();
-        Map<String, FileObject> map = new LinkedHashMap<>();
 
         //First one executes locally or via ssh but without a cluster system.
         Stream<String> stream = JobManager.getInstance().executesWithoutJobSystem() ? indices.parallelStream() : indices.stream();
-        stream.forEach(index -> callWithIndex(toolID, index, indexParameterName, map, firstFile, otherFile));
+        Map<String, FileObject> map = stream.collect { index ->
+            LinkedHashMap<String, String> indexMap = new LinkedHashMap((indexParameterName): index)
+            indexMap.putAll(parameters)
+            new MapEntry(index, callWithOptionalSecondaryBam(toolID, firstFile, otherFile, indexMap))
+        }.collectEntries()
 
         return new IndexedFileObjects(indices, map, executionContext);
     }
@@ -35,14 +37,10 @@ public class ParallelizationHelper {
     /**
      * Called within runParallel
      */
-    public static void callWithIndex(String toolID, String index, String indexParameterName, Map<String, FileObject> map, BaseFile THIS, BaseFile otherBam ) {
-        FileObject callResult;
+    static FileObject callWithOptionalSecondaryBam(String toolID, BaseFile THIS, BaseFile otherBam, LinkedHashMap<String,String> parameters = [:]) {
         if(otherBam == null)
-            callResult = GenericMethod.callGenericTool(toolID, THIS, indexParameterName + index);
+            return GenericMethod.callGenericTool(toolID, THIS, parameters)
         else
-            callResult = GenericMethod.callGenericTool(toolID, THIS, otherBam, indexParameterName + index);
-        synchronized (map) {
-            map.put(index, callResult);
-        }
+            return GenericMethod.callGenericTool(toolID, THIS, otherBam, parameters)
     }
 }

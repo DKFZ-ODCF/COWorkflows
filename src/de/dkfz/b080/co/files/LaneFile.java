@@ -6,7 +6,7 @@ import de.dkfz.roddy.execution.io.ExecutionResult;
 import de.dkfz.roddy.execution.io.ExecutionService;
 import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider;
 import de.dkfz.roddy.execution.jobs.Job;
-import de.dkfz.roddy.execution.jobs.JobResult;
+import de.dkfz.roddy.execution.jobs.BEJobResult;
 import de.dkfz.roddy.knowledge.files.BaseFile;
 import de.dkfz.roddy.knowledge.files.FileGroup;
 import de.dkfz.roddy.knowledge.files.ITestdataSource;
@@ -108,7 +108,7 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
 
         Job job = new Job(context, context.createJobName(this, TOOL), TOOL, parameters, pFiles, Arrays.asList((BaseFile) alignedSequenceFile));
 
-        JobResult jobResult = job.run();
+        BEJobResult jobResult = job.run();
         alignedSequenceFile.setCreatingJobsResult(jobResult);
 
         this.alignedSequenceFile = alignedSequenceFile;

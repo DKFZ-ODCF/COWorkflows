@@ -1,8 +1,7 @@
 package de.dkfz.b080.co.common
 
-import de.dkfz.b080.co.files.*;
+import de.dkfz.b080.co.files.*
 import de.dkfz.roddy.core.ExecutionContext
-import de.dkfz.roddy.execution.jobs.JobResult
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
 
@@ -37,7 +36,6 @@ class QCPipelineScriptFileServiceHelper {
                 String lane = String.format("L%03d", i);
                 String id = String.format("%s_%s_%s_%s", context.getDataSet().getId(), sample.getName(), runName, lane, index);
 
-                JobResult result = JobResult.getFileExistedFakeJobResult(context)
                 LinkedList<LaneFile> filesInGroup = new LinkedList<LaneFile>(Arrays.asList(
                         (LaneFile) BaseFile.constructSourceFile(LaneFile, _f0, context, new COFileStageSettings(id, index, 0, runName, sample, context.getDataSet(), COFileStage.INDEXEDLANE)),
                         (LaneFile) BaseFile.constructSourceFile(LaneFile, _f1, context, new COFileStageSettings(id, index2, 1, runName, sample, context.getDataSet(), COFileStage.INDEXEDLANE))
@@ -81,7 +79,6 @@ class QCPipelineScriptFileServiceHelper {
 
                     LinkedList<LaneFile> filesInGroup = new LinkedList<LaneFile>();
 
-                    JobResult result = JobResult.getFileExistedFakeJobResult(context)
                     filesInGroup << (LaneFile) BaseFile.constructSourceFile(LaneFile, _f0, context, new COFileStageSettings(id, index0, 0, runName, sample, context.getDataSet(), COFileStage.INDEXEDLANE))
                     filesInGroup << (LaneFile) BaseFile.constructSourceFile(LaneFile, _f1, context, new COFileStageSettings(id, index1, 1, runName, sample, context.getDataSet(), COFileStage.INDEXEDLANE))
 
@@ -94,4 +91,5 @@ class QCPipelineScriptFileServiceHelper {
         }
         return fileGroups;
     }
+
 }

@@ -1,17 +1,18 @@
 package de.dkfz.b080.co.files;
 
 import de.dkfz.b080.co.methods.Common;
-import de.dkfz.b080.co.methods.Samtools;
 import de.dkfz.roddy.config.Configuration;
 import de.dkfz.roddy.core.ExecutionContext;
-import de.dkfz.roddy.execution.jobs.*;
+import de.dkfz.roddy.execution.jobs.Job;
+import de.dkfz.roddy.execution.jobs.JobManager;
+import de.dkfz.roddy.execution.jobs.ScriptCallingMethod;
 import de.dkfz.roddy.knowledge.files.*;
 import de.dkfz.roddy.knowledge.methods.GenericMethod;
-//import sun.net.www.content.text.Generic;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Stream;
+
+//import sun.net.www.content.text.Generic;
 
 /**
  * A bam file is the binary version of a sam file and contains sequence data.

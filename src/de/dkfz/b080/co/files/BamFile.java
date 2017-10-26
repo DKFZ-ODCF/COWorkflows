@@ -2,6 +2,7 @@ package de.dkfz.b080.co.files;
 
 import de.dkfz.b080.co.methods.Common;
 import de.dkfz.roddy.config.Configuration;
+import de.dkfz.roddy.config.ConfigurationError;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.jobs.Job;
 import de.dkfz.roddy.execution.jobs.JobManager;
@@ -368,7 +369,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     }
 
     @ScriptCallingMethod
-    public VCFFileGroupForSNVs callSNVs(BamFile controlBam) {
+    public VCFFileGroupForSNVs callSNVs(BamFile controlBam) throws ConfigurationError {
         IndexedFileObjects<Tuple2<VCFFileForSNVs, TextFile>> indexedFileObjects = runParallel(COConstants.CVALUE_CHROMOSOME_INDICES, COConstants.TOOL_SNV_CALLING, controlBam, "PARM_CHR_INDEX=");
 
         for (String chromosome : indexedFileObjects.getIndices()) {
@@ -392,7 +393,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     }
 
     @ScriptCallingMethod
-    public CnvSnpGeneratorResultByType generateCNVSNPs(BamFile controlBam) {
+    public CnvSnpGeneratorResultByType generateCNVSNPs(BamFile controlBam) throws ConfigurationError {
         IndexedFileObjects indexedFileObjects = runParallel(COConstants.CVALUE_CHROMOSOME_INDICES, COConstants.TOOL_CNV_SNP_GENERATION, controlBam, "PARM_CHR_INDEX=");
         return new CnvSnpGeneratorResultByType(indexedFileObjects, controlBam.getExecutionContext());
     }
@@ -403,7 +404,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
 
 
     @ScriptCallingMethod
-    public ImputeGenotypeByChromosome imputeGenotypes() {
+    public ImputeGenotypeByChromosome imputeGenotypes() throws ConfigurationError {
         IndexedFileObjects indexedFileObjects = runParallel(COConstants.CVALUE_AUTOSOME_INDICES, COConstants.TOOL_IMPUTE_GENOTYPES, null, "PARM_CHR_INDEX=");
         return new ImputeGenotypeByChromosome(indexedFileObjects, getExecutionContext());
     }
@@ -417,7 +418,7 @@ public class BamFile extends COBaseFile implements ITestdataSource {
      * @param indexParameterName
      * @return
      */
-    private IndexedFileObjects runParallel(String indicesID, String toolID, BamFile otherBam, String indexParameterName) {
+    private IndexedFileObjects runParallel(String indicesID, String toolID, BamFile otherBam, String indexParameterName) throws ConfigurationError {
         List<String> indices = getExecutionContext().getConfiguration().getConfigurationValues().getOrThrow(indicesID).toStringList();
         Map<String, FileObject> map = new LinkedHashMap<>();
 //        Configuration cfg = controlBam.getExecutionContext().getConfiguration();

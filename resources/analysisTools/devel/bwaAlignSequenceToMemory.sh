@@ -11,7 +11,6 @@ TMP_FILE=${FILENAME_ALIGNMENT}_temp
 # error tracking because bwa never exits anything but 0
 FILENAME_BWA_LOG=${DIR_TEMP}/`basename ${FILENAME_ALIGNMENT}`_errlog
 
-source ${CONFIG_FILE}
 source ${TOOL_COMMON_ALIGNMENT_SETTINGS_SCRIPT}
 
 cmd=""
@@ -49,8 +48,8 @@ then
 
 #    hostIP=`ping $host | head -n 1 | cut -d "(" -f 2 | cut -d ")" -f 1`
 #    mbufferCommand="mbuffer -O ${host}:${port}"
-    mbufferCommand="java7 -jar ${TOOL_MEMORY_STREAMER} push $host $port $DIR_TEMP/${RODDY_JOBID}_memStreamer_push" # Mbuffer does not really work... Dunno why, so don't use it to have a pre buffer
-#    mbufferCommand="mbuffer -m 10G | java7 -jar ${TOOL_MEMORY_STREAMER} push $host $port push"
+    mbufferCommand="$JAVA_BINARY -jar ${TOOL_MEMORY_STREAMER} push $host $port $DIR_TEMP/${RODDY_JOBID}_memStreamer_push" # Mbuffer does not really work... Dunno why, so don't use it to have a pre buffer
+#    mbufferCommand="mbuffer -m 10G | $JAVA_BINARY -jar ${TOOL_MEMORY_STREAMER} push $host $port push"
 #    mbufferCommand="mbuffer -m 10G | netcat -vv $host $port"
     targetCall="| ${mbufferCommand}"
 fi

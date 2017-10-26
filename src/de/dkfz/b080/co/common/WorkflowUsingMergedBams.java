@@ -4,6 +4,7 @@ import de.dkfz.b080.co.files.BamFile;
 import de.dkfz.b080.co.files.COFileStageSettings;
 import de.dkfz.b080.co.files.Sample;
 import de.dkfz.roddy.StringConstants;
+import de.dkfz.roddy.config.ConfigurationError;
 import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
 import de.dkfz.roddy.core.DataSet;
 import de.dkfz.roddy.core.ExecutionContext;
@@ -115,7 +116,7 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
 
 
     @Override
-    public boolean execute(ExecutionContext context) {
+    public boolean execute(ExecutionContext context) throws ConfigurationError {
         BamFile[] initialBamFiles = getInitialBamFiles(context);
         if (!checkInitialFiles(context, initialBamFiles))
             return false;
@@ -125,7 +126,7 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
         return execute(context, bamControlMerged, bamTumorMerged);
     }
 
-    protected abstract boolean execute(ExecutionContext context, BamFile bamControlMerged, BamFile bamTumorMerged);
+    protected abstract boolean execute(ExecutionContext context, BamFile bamControlMerged, BamFile bamTumorMerged) throws ConfigurationError;
 
     @Override
     public boolean checkExecutability(ExecutionContext context) {

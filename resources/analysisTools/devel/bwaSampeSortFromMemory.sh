@@ -66,8 +66,8 @@ then
     # Get two free ports for listening for raw data
     hostAndPort0=`cat ${STREAM_BUFFER_PORTEXCHANGE_0}`
     hostAndPort1=`cat ${STREAM_BUFFER_PORTEXCHANGE_1}`
-    java7 -jar ${TOOL_MEMORY_STREAMER} pull $hostAndPort0 - $DIR_TEMP/${RODDY_JOBID}_memStreamer_0_pull | mbuffer -m 10G > $NP_SEQUENCE_0 &
-    java7 -jar ${TOOL_MEMORY_STREAMER} pull $hostAndPort1 - $DIR_TEMP/${RODDY_JOBID}_memStreamer_1_pull | mbuffer -m 10G > $NP_SEQUENCE_1 &
+    $JAVA_BINARY -jar ${TOOL_MEMORY_STREAMER} pull $hostAndPort0 - $DIR_TEMP/${RODDY_JOBID}_memStreamer_0_pull | mbuffer -m 10G > $NP_SEQUENCE_0 &
+    $JAVA_BINARY -jar ${TOOL_MEMORY_STREAMER} pull $hostAndPort1 - $DIR_TEMP/${RODDY_JOBID}_memStreamer_1_pull | mbuffer -m 10G > $NP_SEQUENCE_1 &
 #    portSAIFile0=`${TOOLSDIR}/../roddy/findOpenPort.sh $startPort`
 #    netcat -vv -l -p $portSAIFile0 | mbuffer -m 10G  > $NP_SEQUENCE_0 &
 #    cat $NP_SEQUENCE_0 > $NP_SEQUENCE_2

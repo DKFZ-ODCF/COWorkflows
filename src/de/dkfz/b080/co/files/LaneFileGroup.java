@@ -1,6 +1,7 @@
 package de.dkfz.b080.co.files;
 
 import de.dkfz.roddy.config.Configuration;
+import de.dkfz.roddy.config.ConfigurationError;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.io.ExecutionResult;
 import de.dkfz.roddy.execution.io.ExecutionService;
@@ -40,7 +41,7 @@ public class LaneFileGroup extends FileGroup<LaneFile> {
     }
 
     @Override
-    public void runDefaultOperations() {
+    public void runDefaultOperations() throws ConfigurationError {
         calcFastqcForAll();
         alignAll();
     }
@@ -66,7 +67,7 @@ public class LaneFileGroup extends FileGroup<LaneFile> {
     }
 
     //This method could be a candidate for
-    public FastqcGroup calcFastqcForAll() {
+    public FastqcGroup calcFastqcForAll() throws ConfigurationError {
         final boolean useSingleEndProcessing = getExecutionContext().getConfiguration().getConfigurationValues().getBoolean(COConstants.FLAG_USE_SINGLE_END_PROCESSING, false);
 
         LinkedList<FastqcFile> files = new LinkedList<FastqcFile>();
@@ -83,7 +84,7 @@ public class LaneFileGroup extends FileGroup<LaneFile> {
         return allFastqcFiles;
     }
 
-    public AlignedSequenceFileGroup alignAll() {
+    public AlignedSequenceFileGroup alignAll() throws ConfigurationError {
         final boolean useSingleEndProcessing = getExecutionContext().getConfiguration().getConfigurationValues().getBoolean(COConstants.FLAG_USE_SINGLE_END_PROCESSING, false);
         LinkedList<AlignedSequenceFile> files = new LinkedList<AlignedSequenceFile>();
         int i = 0;

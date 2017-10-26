@@ -1,6 +1,7 @@
 package de.dkfz.b080.co.files;
 
 import de.dkfz.roddy.config.Configuration;
+import de.dkfz.roddy.config.ConfigurationError;
 import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.roddy.execution.io.ExecutionResult;
 import de.dkfz.roddy.execution.io.ExecutionService;
@@ -52,7 +53,7 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
     }
 
     @Override
-    public void runDefaultOperations() {
+    public void runDefaultOperations() throws ConfigurationError {
         calcFastqc();
         align();
     }
@@ -67,7 +68,7 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
         return super.checkFileValidity();    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    public AlignedSequenceFile align() {
+    public AlignedSequenceFile align() throws ConfigurationError {
         ExecutionContext context = getExecutionContext();
         Configuration configuration = context.getConfiguration();
         boolean useAcceleratedHardware = configuration.getConfigurationValues().getBoolean(COConstants.FLAG_USE_ACCELERATED_HARDWARE);

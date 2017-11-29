@@ -10,4 +10,9 @@ public class ChromosomeDiffTextFile extends COBaseFile {
         setAsTemporaryFile();
     }
 
+    public ChromosomeDiffTextFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
+        setAsTemporaryFile();
+    }
+
 }

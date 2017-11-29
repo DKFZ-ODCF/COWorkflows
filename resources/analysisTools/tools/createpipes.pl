@@ -45,7 +45,7 @@ while (<FL>)
 	chomp;
 	# remove quotation marks necessary for passing parameters with whitespaces through the shell
 	$_ =~ tr /"//d;
-	($column, $file) = /([^=]+)=(.+)/;
+	($column, $file) = /([^\s=]+)=(.+)/;
 	($file, @options) = split(':', $file);
 	($type) = $file =~ /\.(\w+)\.gz$/;
 	# bed, vcf, or gff3, but some are called "gvf" and are gff3

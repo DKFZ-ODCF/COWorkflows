@@ -1,7 +1,7 @@
 package de.dkfz.b080.co.files;
 
-import de.dkfz.roddy.core.ExecutionContext;
 import de.dkfz.b080.co.methods.Common;
+import de.dkfz.roddy.core.ExecutionContext;
 
 import java.util.List;
 
@@ -20,6 +20,10 @@ public class QCSummaryFile extends COBaseFile {
             if (bf instanceof BamFile) continue;
             this.parentFiles.add(bf);
         }
+    }
+
+    public QCSummaryFile(ConstructionHelperForBaseFiles helper) {
+        super(helper);
     }
 
     public static QCSummaryFile createFromFileList(ExecutionContext executionContext, BamFile bamFile, List<COBaseFile> files) {

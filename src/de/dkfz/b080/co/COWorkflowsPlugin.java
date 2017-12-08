@@ -9,7 +9,7 @@ import de.dkfz.roddy.plugins.BasePlugin;
 public class COWorkflowsPlugin extends BasePlugin {
 
     public static final String CURRENT_VERSION_STRING = "1.2.76";
-    public static final String CURRENT_VERSION_BUILD_DATE = "Tue Oct 10 15:16:33 CEST 2017";
+    public static final String CURRENT_VERSION_BUILD_DATE = "Wed Nov 15 13:58:51 CET 2017";
 
     @Override
     public String getVersionInfo() {

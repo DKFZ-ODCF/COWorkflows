@@ -13,4 +13,5 @@ public class BasicBamFile extends COBaseFile {
     public BasicBamFile(BaseFile parent) {
         super(parent);
     }
+
 }

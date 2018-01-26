@@ -10,32 +10,32 @@ class COConfig {
 
     public ExecutionContext context
 
-    public COConfig(ExecutionContext context) {
+    COConfig(ExecutionContext context) {
         this.context = context
     }
 
     // This is used so often, it should maybe be part of ExecutionContext.
-    public RecursiveOverridableMapContainerForConfigurationValues getConfigValues() {
+    RecursiveOverridableMapContainerForConfigurationValues getConfigValues() {
         return context.getConfiguration().getConfigurationValues()
     }
 
-    public setConfig(String flagName, String value, String typeName) {
+    void setConfig(String flagName, String value, String typeName) {
         configValues.put(flagName, value, typeName)
     }
 
-    public boolean getExtractSamplesFromFastqFileList() {
+    boolean getExtractSamplesFromFastqFileList() {
         return !getFastqList().isEmpty()
     }
 
-    public boolean getExtractSamplesFromOutputFiles() {
+    boolean getExtractSamplesFromOutputFiles() {
         return configValues.getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false)
     }
 
-    public boolean getEnforceAtomicSampleName() {
+    boolean getEnforceAtomicSampleName() {
         return configValues.getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false)
     }
 
-    public boolean getExtractSamplesFromBamList() {
+    boolean getExtractSamplesFromBamList() {
         return !getBamList().isEmpty()
     }
 
@@ -46,39 +46,39 @@ class COConfig {
         return [];
     }
 
-    public List<String> getFastqList() {
+    List<String> getFastqList() {
         return checkAndSplitListFromConfig("fastq_list");
     }
 
-    public List<String> getBamList() {
+    List<String> getBamList() {
         return checkAndSplitListFromConfig("bamfile_list");
     }
 
-    public String getSequenceDirectory() {
+    String getSequenceDirectory() {
         return configValues.get("sequenceDirectory").toFile(context).getAbsolutePath()
     }
 
-    public String getAlignmentFolderName() {
+    String getAlignmentFolderName() {
         return configValues.getString(CVALUE_ALIGNMENT_DIRECTORY_NAME, "alignment")
     }
 
-    public String[] getMergedBamSuffixList() {
+    String[] getMergedBamSuffixList() {
         return configValues.get("mergedBamSuffixList", "merged.bam.dupmarked.bam").toString().split(StringConstants.COMMA)
     }
 
-    public boolean getUseMergedBamsFromInputDirectory() {
+    boolean getUseMergedBamsFromInputDirectory() {
         return configValues.getBoolean("useMergedBamsFromInputDirectory", false)
     }
 
-    public boolean getSearchMergedBamFilesWithPID() {
+    boolean getSearchMergedBamFilesWithPID() {
         return configValues.getBoolean("searchMergedBamFilesWithPID", false)
     }
 
-    public List<String> getPossibleControlSampleNamePrefixes() {
+    List<String> getPossibleControlSampleNamePrefixes() {
         return configValues.get("possibleControlSampleNamePrefixes").toStringList(" ", ["(", ")"] as String[])
     }
 
-    public List<String> getPossibleTumorSampleNamePrefixes() {
+    List<String> getPossibleTumorSampleNamePrefixes() {
         return configValues.get("possibleTumorSampleNamePrefixes").toStringList(" ", ["(", ")"] as String[])
     }
 

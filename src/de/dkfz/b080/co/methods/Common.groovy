@@ -14,8 +14,6 @@ import de.dkfz.roddy.knowledge.files.BaseFile
 @StaticScriptProviderClass
 class Common {
 
-//    public static final String FASTQC = "fastqc";
-//    public static final String INSERTSIZES = "insertSizes";
     public static final String CHROMOSOMEDIFF = "chromosomeDiff";
     public static final String GENOMECOVERAGE = "genomeCoverage";
     public static final String QCSUMMARY = "qcSummary";
@@ -23,73 +21,6 @@ class Common {
     public static final String PID = "DataSet";
     public static final String TOOLS_DIR = "TOOLS_DIR";
     public static final String ANALYSIS_DIR = "ANALYSIS_DIR";
-//
-//    public static String createJobName(BaseFile bf, String toolName, boolean reduceLevel = false, List<BaseFile> inputFilesForSizeCalculation = []) {
-//        return Roddy.commandFactory.createJobName(bf, toolName, reduceLevel);
-//    }
-
-
-//    public static void determineSequencerID(RunningProcess context, List<LaneFileGroup> laneFileGroupList) {
-//        ExecutionService es = context.getExecutionService();
-//        File sequencerIDTool = context.getConfiguration().getProcessingToolPath(context, "sequencerDetection");
-//        List<LaneFile> allLaneFiles = [];
-//        StringBuilder command = new StringBuilder();
-//        for (LaneFileGroup lfg : laneFileGroupList) {
-//            List<LaneFile> lflist = lfg.getFilesInGroup();
-//            for (LaneFile lf : lflist) {
-//                allLaneFiles << lf;
-//                //TODO Compressor options!
-//                command << "&& " << "${lf.decompressionString} ${lf.path.absolutePath} | ${sequencerIDTool.absolutePath} ";
-//            }
-//        }
-//        ExecutionResult er = es.execute(command[2..-1].toString());
-//        for (int i = 0; i < er.resultLines.size(); i++) {
-//            allLaneFiles[i].sequencerID = er.resultLines[i];
-//        }
-//    }
-
-//    public static FastqcFile fastqc(ExecutionContext context, LaneFile laneFile) {
-//        FastqcFile fastqcFile = new FastqcFile(laneFile);
-//        File filePath = fastqcFile.getPath();
-//
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.putAll([
-//                PRM_RAW_SEQ: laneFile.path.absolutePath,
-//                "FILENAME_FASTQC": filePath.getAbsolutePath(),
-//        ]);
-//
-//        JobResult jobResult = new Job(context, createJobName(laneFile, FASTQC), [filePath], FASTQC, parameters).context();
-//        fastqcFile.setCreatingJobsResult(jobResult);
-//        return fastqcFile;
-//    }
-
-//    public static InsertSizesFileGroup determineInsertSizesForBamFile(ExecutionContext context, BamFile bamFile) {
-//        if (!bamFile.hasIndex()) bamFile.indexFile();
-//        InsertSizesTextFile tFile = new InsertSizesTextFile(bamFile);
-//        InsertSizesPlotFile pFile = new InsertSizesPlotFile(bamFile);
-//        File filePathD = tFile.path;
-//        File filePathP = pFile.path;
-//
-//        //Find first position of .bam. Take everything from the left of this position.
-//        String bamFilename = bamFile.path.absolutePath;
-////        String bamFileShortname = bamFile.path.name;
-//
-////        String fileInfo = bamFileShortname[0..bamFileShortname.lastIndexOf("_") - 1];
-//
-//        Map<String, String> parameters = [
-//                "FILENAME": bamFilename,
-//                "FILENAMED": filePathD.absolutePath,
-//                "FILENAMEP": filePathP.absolutePath
-//        ];
-//        List<BaseFile> pFiles = [(BaseFile) bamFile];
-//        JobResult jobResult = new Job(context, createJobName(pFiles[0], INSERTSIZES), INSERTSIZES, parameters, pFiles).context();
-//        tFile.setCreatingJobsResult(jobResult);
-//        pFile.setCreatingJobsResult(jobResult);
-//
-//        InsertSizesFileGroup fGroup = new InsertSizesFileGroup(tFile, pFile, context);
-//
-//        return fGroup;
-//    }
 
     @ScriptCallingMethod
     public static ChromosomeDiffFileGroup differentiateChromosomesForBamFile(ExecutionContext run, BamFile bamFile) {
@@ -117,25 +48,6 @@ class Common {
         ChromosomeDiffFileGroup fGroup = new ChromosomeDiffFileGroup((List<BaseFile>)[tFile, pFile]);
         return fGroup;
     }
-
-//
-//    @ScriptCallingMethod
-//    public static CoverageTextFile calculateBamCoverage(ExecutionContext run, BamFile bamFile, CoverageTextFile.CoverageType coverageType = CoverageTextFile.CoverageType.Default) {
-//        if (!bamFile.hasIndex()) bamFile.indexFile();
-//        CoverageTextFile cTextFile = new CoverageTextFile(bamFile, coverageType);
-//
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.putAll([
-//                "FILENAME_COVERAGE": cTextFile.absolutePath,
-//                "FILENAME": bamFile.path.absolutePath,
-//                "DIR_COVERAGE": cTextFile.containingFolder,
-//                "COVERAGE_TYPE": coverageType.toString(),
-//        ]);
-//        List<BaseFile> pFiles = [(BaseFile) bamFile.getIndexFile()];
-//        JobResult jobResult = new Job(run, run.createJobName(pFiles[0], GENOMECOVERAGE), GENOMECOVERAGE, parameters, pFiles, [(BaseFile)cTextFile]).run();
-//        cTextFile.setCreatingJobsResult(jobResult);
-//        return cTextFile;
-//    }
 
     private static LaneFile recursivelySearchLaneFile(List<BaseFile> files) {
         LaneFile lf = null;
@@ -177,9 +89,9 @@ class Common {
         def temp = run.getDefaultJobParameters(QCSUMMARY);
         Map<String, Object> parameters = (Map<String, Object>)temp;
         parameters.putAll([
-                "SAMPLE": sample,
-                "RUN": runId,
-                "LANE": lane,
+                "SAMPLE": sample, "sample": sample,
+                "RUN": runId, "run": runId,
+                "LANE": lane, "lane": lane,
                 "FILENAME_QCSUM": qcSummaryFile.absolutePath
         ]);
         files.each {

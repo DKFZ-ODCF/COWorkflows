@@ -33,7 +33,9 @@ public class BamFileGroup extends FileGroup<BamFile> {
     public BamFile mergeAndRemoveDuplicatesSlim(Sample sample) {
         boolean useBioBamBamMarkDuplicates = executionContext.getConfiguration().getConfigurationValues().getBoolean("useBioBamBamMarkDuplicates", true);
         if (mergedBam == null) {
-            mergedBam = (BamFile) GenericMethod.callGenericTool(useBioBamBamMarkDuplicates ? MERGEANDMORMDUP_SLIM_BIOBAMBAM : MERGEANDMORMDUP_SLIM_PICARD, getFilesInGroup().get(0), this, "SAMPLE=${sample.getName()}");
+            mergedBam = (BamFile) GenericMethod.callGenericTool(useBioBamBamMarkDuplicates ? MERGEANDMORMDUP_SLIM_BIOBAMBAM : MERGEANDMORMDUP_SLIM_PICARD,
+                    getFilesInGroup().get(0), this,
+                    ["SAMPLE": sample.getName(), "sample": sample.getName()])
         }
         return mergedBam;
     }

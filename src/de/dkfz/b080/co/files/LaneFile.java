@@ -59,7 +59,11 @@ public class LaneFile extends COBaseFile implements ITestdataSource {
     }
 
     public FastqcFile calcFastqc() {
-        fastqcFile = GenericMethod.callGenericTool("fastqc", this);//Common.fastqc(executionContext, this);
+        fastqcFile = GenericMethod.callGenericTool("fastqc", this,
+                "SAMPLE=" + getSample().getName(), "sample=" + getSample().getName(),
+                "RUN=" + getRunID(), "run=" + getRunID(),
+                "LANE=" + getLaneId(), "lane=" + getLaneId(),
+                "LANEIDX=" + getIndex(), "laneidx=" + getIndex());
         return fastqcFile;
     }
 

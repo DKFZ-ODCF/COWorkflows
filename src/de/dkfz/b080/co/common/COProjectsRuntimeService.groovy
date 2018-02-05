@@ -468,15 +468,12 @@ public class COProjectsRuntimeService extends RuntimeService {
 
         ProcessingFlag flag = context.setProcessingFlag(ProcessingFlag.STORE_NOTHING);
 
-//        File outputFolderForDataSetAndAnalysis = getOutputFolderForDataSetAndAnalysis(context.getDataSet(), context.getAnalysis());
         BamFileGroup mergedBamFiles = new BamFileGroup();
         Map<Sample.SampleType, CoverageTextFileGroup> coverageTextFilesBySample = new LinkedHashMap<>();
 
         //Set level to test, set back later.
         ExecutionContextLevel executionContextLevel = context.getExecutionContextLevel();
-        ExecutionContextSubLevel detailedExecutionContextLevel = context.getDetailedExecutionContextLevel();
         context.setExecutionContextLevel(ExecutionContextLevel.QUERY_STATUS);
-//        context.setExecutionContextLevel(ExecutionContextLevel.QUERY_STATUS);
         getSamplesForContext(context).parallelStream().forEach(new Consumer<Sample>() {
             @Override
             void accept(Sample sample) {

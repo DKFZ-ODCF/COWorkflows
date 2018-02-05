@@ -27,7 +27,7 @@ import de.dkfz.roddy.tools.LoggerWrapper
  */
 //@PluginImplementation
 @groovy.transform.CompileStatic
-public class BasicCOProjectsRuntimeService extends RuntimeService {
+class BasicCOProjectsRuntimeService extends RuntimeService {
 
     private static LoggerWrapper logger = LoggerWrapper.getLogger(BasicCOProjectsRuntimeService.class.getName());
 
@@ -37,32 +37,32 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
      * Releases the cache in this provider
      */
     @Override
-    public void releaseCache() {
+    void releaseCache() {
 
     }
 
     @Override
-    public boolean initialize() {
+    boolean initialize() {
     }
 
     @Override
-    public void destroy() {
+    void destroy() {
     }
 
-    public Map<String, Object> getDefaultJobParameters(ExecutionContext context, String toolID) {
+    Map<String, Object> getDefaultJobParameters(ExecutionContext context, String toolID) {
         def fs = context.getRuntimeService();
         //File cf = fs..createTemporaryConfigurationFile(executionContext);
         String pid = context.getDataSet().toString()
         Map<String, Object> parameters = [
-                pid         : (Object) pid,
-                PID         : pid,
-                ANALYSIS_DIR: context.getOutputDirectory().getParentFile().getParent()
+                (COConstants.PRM_PID)         : (Object) pid,
+                (COConstants.PRM_PID_CAP)     : pid,
+                (COConstants.PRM_ANALYSIS_DIR): context.getOutputDirectory().getParentFile().getParent()
         ]
-        return parameters;
+        return parameters
     }
 
     @Override
-    public String createJobName(ExecutionContext executionContext, BaseFile file, String toolID, boolean reduceLevel) {
+    String createJobName(ExecutionContext executionContext, BaseFile file, String toolID, boolean reduceLevel) {
         return JobManager.getInstance().createJobName(file, toolID, reduceLevel);
     }
 
@@ -136,17 +136,17 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
     }
 
     protected MetadataTable getMetadataTable(ExecutionContext context) {
-        return new MetadataTable(MetadataTableFactory.getTable(context.getAnalysis()));
+        return new MetadataTable(MetadataTableFactory.getTable(context.getAnalysis()).subsetByDataset(context.getDataSet().id));
     }
 
-    public List<Sample> extractSamplesFromMetadataTable(ExecutionContext context) {
+    List<Sample> extractSamplesFromMetadataTable(ExecutionContext context) {
         return getMetadataTable(context).listSampleNames().collect {
             new Sample(context, it)
         }
     }
 
-    public List<String> extractLibrariesFromMetadataTable(ExecutionContext context, String sampleName) {
-        MetadataTable resultTable = getMetadataTable(context).subsetBySample(sampleName)
+    List<String> extractLibrariesFromMetadataTable(ExecutionContext context, String sampleName) {
+        MetadataTable resultTable = new MetadataTable(getMetadataTable(context).subsetBySample(sampleName))
         assert resultTable.size() > 0
         return resultTable.listLibraries()
     }
@@ -161,7 +161,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         }
     }
 
-    public static String extractSampleNameFromOutputFile(String filename, boolean enforceAtomicSampleName) {
+    static String extractSampleNameFromOutputFile(String filename, boolean enforceAtomicSampleName) {
         String[] split = filename.split(StringConstants.SPLIT_UNDERSCORE);
         if (split.size() <= 2) {
             return null
@@ -172,7 +172,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         return sampleName
     }
 
-    public List<Sample> extractSamplesFromOutputFiles(ExecutionContext context) {
+    List<Sample> extractSamplesFromOutputFiles(ExecutionContext context) {
         //TODO extractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
         COConfig cfg = new COConfig(context);
         FileSystemAccessProvider fileSystemAccessProvider = FileSystemAccessProvider.getInstance()
@@ -191,8 +191,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         }
     }
 
-
-    public List<Sample> extractSamplesFromSampleDirs(ExecutionContext context) {
+    List<Sample> extractSamplesFromSampleDirs(ExecutionContext context) {
         FileSystemAccessProvider fileSystemAccessProvider = FileSystemAccessProvider.getInstance()
 
         if (!fileSystemAccessProvider.checkDirectory(context.getInputDirectory(), context, false)) {
@@ -207,11 +206,11 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
     }
 
 
-    public List<String> extractLibrariesFromSampleDirectory(File sampleDirectory) {
+    List<String> extractLibrariesFromSampleDirectory(File sampleDirectory) {
         return FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(sampleDirectory).collect { File f -> f.name } as List<String>;
     }
 
-    public static List<Sample> extractSamplesFromFilenames(List<File> filesInDirectory, ExecutionContext context) {
+    static List<Sample> extractSamplesFromFilenames(List<File> filesInDirectory, ExecutionContext context) {
         COConfig cfg = new COConfig(context)
         LinkedList<Sample> samples = [];
         List<Sample.SampleType> availableTypes = [];
@@ -243,14 +242,20 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         return samples;
     }
 
-    public List<Sample> getSamplesForContext(ExecutionContext context) {
+    List<Sample> getSamplesForContext(ExecutionContext context) {
         // @Michael: I think that COConfig accessors actually belong into the Context itself.
         COConfig cfg = new COConfig(context);
         List<Sample> samples
         String extractedFrom
+        List<String> samplesPassedInConfig = cfg.getSampleList()
+
         if (Roddy.isMetadataCLOptionSet()) {
             samples = extractSamplesFromMetadataTable(context)
             extractedFrom = "input table '${getMetadataTable(context)}'"
+        } else if (samplesPassedInConfig) {
+            logger.postSometimesInfo("Samples were passed as configuration value: ${samplesPassedInConfig}")
+            samples = samplesPassedInConfig.collect { String it -> new Sample(context, it) }
+            extractedFrom = "samples_list configuration value"
         } else if (cfg.extractSamplesFromFastqFileList) {
             List<File> fastqFiles = cfg.getFastqList().collect { String f -> new File(f); }
             samples = extractSamplesFromFastqList(fastqFiles, context)
@@ -297,12 +302,12 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
         return new File(temp);
     }
 
-    public File getSampleDirectory(ExecutionContext process, Sample sample, String library = null) {
+    File getSampleDirectory(ExecutionContext process, Sample sample, String library = null) {
         File sampleDir = getInpDirectory(COConstants.CVALUE_SAMPLE_DIRECTORY, process, sample, library);
         return sampleDir
     }
 
-    public File getSequenceDirectory(ExecutionContext process, Sample sample, String run, String library = null) {
+    File getSequenceDirectory(ExecutionContext process, Sample sample, String run, String library = null) {
         return new File(getInpDirectory(COConstants.CVALUE_SEQUENCE_DIRECTORY, process, sample, library).getAbsolutePath().replace('${run}', run));
     }
 

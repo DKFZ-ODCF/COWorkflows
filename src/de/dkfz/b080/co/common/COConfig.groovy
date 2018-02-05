@@ -54,6 +54,10 @@ class COConfig {
         return checkAndSplitListFromConfig("bamfile_list");
     }
 
+    List<String> getSampleList() {
+        return checkAndSplitListFromConfig("sample_list")
+    }
+
     String getSequenceDirectory() {
         return configValues.get("sequenceDirectory").toFile(context).getAbsolutePath()
     }

@@ -26,7 +26,6 @@ import static de.dkfz.b080.co.files.COConstants.FLAG_EXTRACT_SAMPLES_FROM_OUTPUT
  */
 public abstract class WorkflowUsingMergedBams extends Workflow {
 
-    public static final String BAMFILE_LIST = "bamfile_list";
     private Map<DataSet, BamFile[]> foundInputFiles = new LinkedHashMap<>();
 
     public BamFile[] getInitialBamFiles(ExecutionContext context) {

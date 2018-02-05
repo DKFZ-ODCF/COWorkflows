@@ -222,7 +222,7 @@ public class COProjectsRuntimeService extends RuntimeService {
                 it != null
             } as List<Sample>;
         } else if (extractSamplesFromOutputFiles) {
-            //TODO etractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
+            //TODO extractSamplesFromOutputFiles fails, when no alignment directory is available. Should one fall back to the default method?
 
             File alignmentDirectory = getAlignmentDirectory(context)
             if (!FileSystemAccessProvider.getInstance().checkDirectory(alignmentDirectory, context, false)) {

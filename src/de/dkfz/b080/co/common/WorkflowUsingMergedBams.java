@@ -27,6 +27,8 @@ import static de.dkfz.b080.co.files.COConstants.FLAG_EXTRACT_SAMPLES_FROM_OUTPUT
 public abstract class WorkflowUsingMergedBams extends Workflow {
 
     public static final String BAMFILE_LIST = "bamfile_list";
+
+
     private Map<DataSet, BamFile[]> foundInputFiles = new LinkedHashMap<>();
 
     public BamFile[] getInitialBamFiles(ExecutionContext context) {
@@ -37,7 +39,7 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
 
         boolean bamfileListIsSet = configurationValues.hasValue(BAMFILE_LIST);
         // There is a method missing in COProjectsRuntimeService. This fix will ONLY work, when sample_list is set!
-        List<String> samplesPassedInConfig = Arrays.asList(configurationValues.getString("sample_list", "").split("[;]"));
+        List<String> samplesPassedInConfig = Arrays.asList(configurationValues.getString(COProjectsRuntimeService.SAMPLE_LIST, "").split("[;]"));
         boolean sampleListIsSet = samplesPassedInConfig != null && samplesPassedInConfig.size() > 0;
 
         COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService();
@@ -52,7 +54,8 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
             if (!foundInputFiles.containsKey(dataSet)) {
                 if (bamfileListIsSet) {
                     if (!sampleListIsSet) {
-                        context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("Bam files were set in configuration but the bamfile_list value is missing."));
+                        context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("Bam files were set in configuration but the " +
+                                BAMFILE_LIST + " value is missing."));
 
                     } else {
                         List<String> bamFiles = Arrays.asList(configurationValues.getString(BAMFILE_LIST, "").split(StringConstants.SPLIT_SEMICOLON));

@@ -28,6 +28,8 @@ import static de.dkfz.b080.co.files.COConstants.*
 @groovy.transform.CompileStatic
 public class COProjectsRuntimeService extends RuntimeService {
 
+    public static final String SAMPLE_LIST = "sample_list";
+
     private static LoggerWrapper logger = LoggerWrapper.getLogger(COProjectsRuntimeService.class.getName());
 
     /**
@@ -189,8 +191,8 @@ public class COProjectsRuntimeService extends RuntimeService {
         List<Sample> samples = new LinkedList<Sample>();
         boolean extractSamplesFromOutputFiles = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false);
         boolean enforceAtomicSampleName = run.getConfiguration().getConfigurationValues().getBoolean(FLAG_ENFORCE_ATOMIC_SAMPLE_NAME, false);
-        List<String> samplesPassedInConfig = run.getConfiguration().getConfigurationValues().getString("sample_list", "").split("[;]") as List<String>
-        boolean samplesFromConfig = run.getConfiguration().getConfigurationValues().getString("sample_list", "")
+        List<String> samplesPassedInConfig = run.getConfiguration().getConfigurationValues().getString(SAMPLE_LIST, "").split("[;]") as List<String>
+        boolean samplesFromConfig = run.getConfiguration().getConfigurationValues().getString(SAMPLE_LIST, "")
 
         if (samplesFromConfig) {
             logger.postSometimesInfo("Samples were passed as configuration value: ${samplesPassedInConfig}")

@@ -19,15 +19,12 @@ import java.util.function.Consumer
 
 import static de.dkfz.b080.co.files.COConstants.*
 
-//import net.xeoh.plugins.base.annotations.PluginImplementation
-
 /**
  * This service is mainly for qcpipeline. It might be of use for other projects
  * as well. TODO Think about renaming and extending this as needed.
  *
  * @author michael
  */
-//@PluginImplementation
 @groovy.transform.CompileStatic
 public class COProjectsRuntimeService extends RuntimeService {
 
@@ -48,10 +45,6 @@ public class COProjectsRuntimeService extends RuntimeService {
     @Override
     public void destroy() {
     }
-//
-//    @Override
-//    public Map<String, Object> getDefaultJobParameters(ExecutionContext context, String TOOLID) {
-//    }
 
     public Map<String, Object> getDefaultJobParameters(ExecutionContext context, String toolID) {
         def fs = context.getRuntimeService();
@@ -398,15 +391,11 @@ public class COProjectsRuntimeService extends RuntimeService {
 
         ProcessingFlag flag = context.setProcessingFlag(ProcessingFlag.STORE_NOTHING);
 
-//        File outputFolderForDataSetAndAnalysis = getOutputFolderForDataSetAndAnalysis(context.getDataSet(), context.getAnalysis());
         BamFileGroup mergedBamFiles = new BamFileGroup();
-        Map<Sample.SampleType, CoverageTextFileGroup> coverageTextFilesBySample = new LinkedHashMap<>();
 
         //Set level to test, set back later.
         ExecutionContextLevel executionContextLevel = context.getExecutionContextLevel();
-        ExecutionContextSubLevel detailedExecutionContextLevel = context.getDetailedExecutionContextLevel();
         context.setExecutionContextLevel(ExecutionContextLevel.QUERY_STATUS);
-//        context.setExecutionContextLevel(ExecutionContextLevel.QUERY_STATUS);
         getSamplesForRun(context).parallelStream().forEach(new Consumer<Sample>() {
             @Override
             void accept(Sample sample) {

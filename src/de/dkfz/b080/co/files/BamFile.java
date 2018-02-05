@@ -13,8 +13,6 @@ import de.dkfz.roddy.knowledge.methods.GenericMethod;
 import java.util.*;
 import java.util.stream.Stream;
 
-//import sun.net.www.content.text.Generic;
-
 /**
  * A bam file is the binary version of a sam file and contains sequence data.
  * Please have a look at th
@@ -278,8 +276,6 @@ public class BamFile extends COBaseFile implements ITestdataSource {
         if (!getExecutionContext().getConfiguration().getConfigurationValues().getBoolean("useSingleEndProcessing", false))
             determineInsertSizes();
         diffChroms();
-//        if (getExecutionContext().getConfiguration().getConfigurationValues().getBoolean("runGenomeCoverage", true))
-//            calcCoverage();
     }
 
     @ScriptCallingMethod
@@ -465,7 +461,9 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     @ScriptCallingMethod
     public BamFile extractTargetsCalculateCoverage() {
         if (targetExtractedBamFile == null)
-            targetExtractedBamFile = (BamFile)GenericMethod.callGenericTool(COConstants.TARGET_EXTRACTION_AND_COVERAGE_SLIM, this, this.getGenomeCoverageTextFile(), "SAMPLE=" + getSample().getName());
+            targetExtractedBamFile = (BamFile)GenericMethod.callGenericTool(COConstants.TARGET_EXTRACTION_AND_COVERAGE_SLIM, this,
+                    this.getGenomeCoverageTextFile(),
+                    "SAMPLE=" + getSample().getName(), "sample=" + getSample().getName());
         return targetExtractedBamFile;
     }
 
@@ -486,13 +484,14 @@ public class BamFile extends COBaseFile implements ITestdataSource {
     @ScriptCallingMethod
     public CoverageTextFile calcReadBinsCoverage() {
         if (readBinsCoverageTextFile == null)
-            readBinsCoverageTextFile = GenericMethod.callGenericTool("readBinsCoverage", this);
+            readBinsCoverageTextFile = GenericMethod.callGenericTool("readBinsCoverage", this,
+                    "SAMPLE=" + getSample().getName(), "sample=" + getSample().getName());
         return readBinsCoverageTextFile;
     }
 
     public void performPostMergeQCAnalysis() {
         if(insertSizesPlotFile == null && chromosomeDiffPlotFile == null) {
-            Tuple13<BamIndexFile, FlagstatsFile, TextFile, BamMetricsFile, ChromosomeDiffValueFile, ChromosomeDiffTextFile, ChromosomeDiffPlotFile, InsertSizesValueFile, InsertSizesTextFile, InsertSizesPlotFile, CoverageTextFile, CoverageTextFile, QCSummaryFile> results = GenericMethod.callGenericTool("postMergeQCAnalysis", this, "SAMPLE=" + this.getSample().getName());
+            Tuple13<BamIndexFile, FlagstatsFile, TextFile, BamMetricsFile, ChromosomeDiffValueFile, ChromosomeDiffTextFile, ChromosomeDiffPlotFile, InsertSizesValueFile, InsertSizesTextFile, InsertSizesPlotFile, CoverageTextFile, CoverageTextFile, QCSummaryFile> results = GenericMethod.callGenericTool("postMergeQCAnalysis", this, "SAMPLE=" + this.getSample().getName(), "sample=" + this.getSample().getName());
             setIndexFile(results._a);
             setFlagstatsFile(results._b);
             setExtendedFlagstatsFile(results._c);

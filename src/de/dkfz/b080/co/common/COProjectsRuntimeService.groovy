@@ -5,7 +5,6 @@
 package de.dkfz.b080.co.common
 
 import de.dkfz.b080.co.files.*
-import de.dkfz.roddy.Roddy
 import de.dkfz.roddy.StringConstants
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.*
@@ -17,7 +16,6 @@ import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
 
 import java.util.function.Consumer
-import java.util.logging.Logger
 
 import static de.dkfz.b080.co.files.COConstants.*
 
@@ -110,7 +108,7 @@ public class COProjectsRuntimeService extends RuntimeService {
 
         try {
             //Was freshly created?
-            if (baseFile.creatingJobsResult != null && baseFile.creatingJobsResult.wasExecuted) {
+            if (baseFile.creatingJobsResult != null && baseFile.creatingJobsResult.successful) {
                 result = false;
             }
         } catch (Exception ex) {

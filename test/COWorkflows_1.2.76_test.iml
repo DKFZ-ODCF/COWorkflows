@@ -9,7 +9,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="COWorkflows_1.2.76" />
-    <orderEntry type="module" module-name="RoddyToolLib_main" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.6" level="project" />
@@ -17,5 +16,6 @@
     <orderEntry type="module" module-name="Roddy_main" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="Roddy_test" scope="TEST" />
+    <orderEntry type="module" module-name="RoddyToolLib" />
   </component>
 </module>

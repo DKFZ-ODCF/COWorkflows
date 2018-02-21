@@ -1,20 +1,17 @@
-package de.dkfz.b080.co.common;
+package de.dkfz.b080.co.common
 
 import de.dkfz.b080.co.files.BasicBamFile
-import de.dkfz.b080.co.files.COFileStageSettings;
-import de.dkfz.b080.co.files.Sample;
-import de.dkfz.roddy.StringConstants;
-import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
-import de.dkfz.roddy.core.DataSet;
-import de.dkfz.roddy.core.ExecutionContext;
-import de.dkfz.roddy.core.ExecutionContextError;
-import de.dkfz.roddy.core.Workflow;
+import de.dkfz.b080.co.files.COFileStageSettings
+import de.dkfz.b080.co.files.Sample
+import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues
+import de.dkfz.roddy.core.DataSet
+import de.dkfz.roddy.core.ExecutionContext
+import de.dkfz.roddy.core.ExecutionContextError
+import de.dkfz.roddy.core.Workflow
 import de.dkfz.roddy.knowledge.files.BaseFile
 import groovy.transform.CompileStatic
 
-import java.util.*;
-
-import static de.dkfz.b080.co.files.COConstants.FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES;
+import static de.dkfz.b080.co.files.COConstants.FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES
 
 /**
  * A basic workflow which uses merged bam files as an input and offers some check routines for those files.
@@ -36,9 +33,6 @@ public abstract class WorkflowUsingMergedBams extends Workflow {
         configurationValues.put(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, "" + extractSamplesFromOutputFiles, "boolean");
 
         boolean bamfileListIsSet = configurationValues.hasValue(BAMFILE_LIST);
-        // There is a method missing in COProjectsRuntimeService. This fix will ONLY work, when sample_list is set!
-        List<String> samplesPassedInConfig = Arrays.asList(configurationValues.getString("sample_list", "").split("[;]")) as List<String>;
-        boolean sampleListIsSet = samplesPassedInConfig != null && samplesPassedInConfig.size() > 0;
 
         BasicCOProjectsRuntimeService runtimeService = (BasicCOProjectsRuntimeService) context.getRuntimeService();
         List<Sample> samples = runtimeService.getSamplesForContext(context);

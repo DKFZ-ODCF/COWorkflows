@@ -11,16 +11,17 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources/analysisTools" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources/configurationFiles" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/test/src" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="RoddyToolLib_main" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
     <orderEntry type="module" module-name="PluginBase" />
-    <orderEntry type="module" module-name="BatchEuphoria_main" />
-    <orderEntry type="module" module-name="Roddy_main" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.9" level="project" />
-    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.6" level="project" />
+    <orderEntry type="module" module-name="Roddy" />
+    <orderEntry type="module" module-name="RoddyToolLib" />
+    <orderEntry type="module" module-name="BatchEuphoria" />
   </component>
 </module>

@@ -17,7 +17,6 @@ import de.dkfz.roddy.core.RuntimeService
 import de.dkfz.roddy.execution.io.MetadataTableFactory
 import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.execution.jobs.JobManager
-import de.dkfz.roddy.core.*
 import de.dkfz.roddy.knowledge.files.BaseFile
 import de.dkfz.roddy.tools.LoggerWrapper
 
@@ -181,7 +180,7 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
             logger.postSometimesInfo("Samples were passed as configuration value: ${samplesPassedInConfig}")
             samples = samplesPassedInConfig.collect { String it -> new Sample(context, it) }
             extractedFrom = "samples_list configuration value"
-        } else if (cfg.extractSamplesFromFastqFileList) {
+        } else if (cfg.fastqFileListIsSet) {
             List<File> fastqFiles = cfg.getFastqList().collect { String f -> new File(f); }
             samples = extractSamplesFromFastqList(fastqFiles, context)
             extractedFrom = "fastq_list configuration value"

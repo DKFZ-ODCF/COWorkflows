@@ -3,7 +3,6 @@ package de.dkfz.b080.co.files;
 /**
  * A static class for the storage of computational oncology based constants.
  */
-@groovy.transform.CompileStatic
 public final class COConstants {
     /**
      * Tool entries

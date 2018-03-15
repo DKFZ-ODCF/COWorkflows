@@ -25,7 +25,6 @@ import de.dkfz.roddy.tools.LoggerWrapper
  *
  * @author michael
  */
-//@PluginImplementation
 @groovy.transform.CompileStatic
 class BasicCOProjectsRuntimeService extends RuntimeService {
 
@@ -212,7 +211,7 @@ class BasicCOProjectsRuntimeService extends RuntimeService {
 
     static List<Sample> extractSamplesFromFilenames(List<File> filesInDirectory, ExecutionContext context) {
         COConfig cfg = new COConfig(context)
-        LinkedList<Sample> samples = [];
+        LinkedList<Sample> samples = [] as LinkedList
         List<Sample.SampleType> availableTypes = [];
         for (File f : filesInDirectory) {
             String name = f.getName();
@@ -260,7 +259,7 @@ class BasicCOProjectsRuntimeService extends RuntimeService {
             List<File> fastqFiles = cfg.getFastqList().collect { String f -> new File(f); }
             samples = extractSamplesFromFastqList(fastqFiles, context)
             extractedFrom = "fastq_list configuration value"
-        } else if (cfg.extractSamplesFromOutputFiles) {
+        } else if (cfg.getExtractSamplesFromOutputFiles()) {
             samples = extractSamplesFromOutputFiles(context)
             extractedFrom = "output files"
         } else if (cfg.extractSamplesFromBamList) {

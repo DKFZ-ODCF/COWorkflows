@@ -27,8 +27,8 @@ class COConfig {
         return !getFastqList().isEmpty()
     }
 
-    boolean getExtractSamplesFromOutputFiles() {
-        return configValues.getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, false)
+    boolean getExtractSamplesFromOutputFiles(boolean defaultValue = false) {
+        return configValues.getBoolean(FLAG_EXTRACT_SAMPLES_FROM_OUTPUT_FILES, defaultValue)
     }
 
     boolean getEnforceAtomicSampleName() {

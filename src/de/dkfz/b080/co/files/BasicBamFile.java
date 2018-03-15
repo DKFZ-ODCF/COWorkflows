@@ -13,4 +13,8 @@ public class BasicBamFile extends COBaseFile {
     public BasicBamFile(BaseFile parent) {
         super(parent);
     }
+
+    public Sample getSample() {
+        return ((COFileStageSettings)fileStageSettings).getSample();
+    }
 }

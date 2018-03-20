@@ -144,12 +144,13 @@ public class BasicCOProjectsRuntimeService extends RuntimeService {
 
 
     public List<String> extractLibrariesFromSampleDirectory(File sampleDirectory) {
+        assert null != sampleDirectory
         return FileSystemAccessProvider.getInstance().listDirectoriesInDirectory(sampleDirectory).collect { File f -> f.name } as List<String>;
     }
 
     public static List<Sample> extractSamplesFromFilenames(List<File> filesInDirectory, ExecutionContext context) {
         COConfig cfg = new COConfig(context)
-        LinkedList<Sample> samples = [];
+        List<Sample> samples = [];
         for (File f : filesInDirectory) {
             String name = f.getName();
             String sampleName = null;
